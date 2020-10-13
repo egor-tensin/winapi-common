@@ -21,15 +21,11 @@ class Handle {
 public:
     Handle() = default;
 
-    explicit Handle(HANDLE raw)
-        : impl{raw}
-    { }
+    explicit Handle(HANDLE raw) : impl{raw} {}
 
-    Handle(Handle&& other) BOOST_NOEXCEPT_OR_NOTHROW {
-        swap(other);
-    }
+    Handle(Handle&& other) BOOST_NOEXCEPT_OR_NOTHROW { swap(other); }
 
-    Handle& operator=(Handle other) BOOST_NOEXCEPT_OR_NOTHROW { 
+    Handle& operator=(Handle other) BOOST_NOEXCEPT_OR_NOTHROW {
         swap(other);
         return *this;
     }
@@ -61,7 +57,7 @@ inline void swap(Handle& a, Handle& b) BOOST_NOEXCEPT_OR_NOTHROW {
     a.swap(b);
 }
 
-}
+} // namespace winapi
 
 namespace std {
 
