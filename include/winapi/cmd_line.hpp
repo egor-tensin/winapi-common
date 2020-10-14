@@ -168,10 +168,10 @@ private:
         return safe;
     }
 
-    CommandLine(std::vector<std::string>&& args) : args{std::move(args)} {}
+    CommandLine(std::vector<std::string>&& args) : args(std::move(args)) {}
 
     CommandLine(std::string&& argv0, std::vector<std::string>&& args = {})
-        : argv0{std::move(argv0)}, args{std::move(args)} {}
+        : argv0(std::move(argv0)), args(std::move(args)) {}
 
     const std::string argv0;
     const std::vector<std::string> args;
