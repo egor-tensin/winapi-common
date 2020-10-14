@@ -1,6 +1,6 @@
 find_package(Boost REQUIRED COMPONENTS unit_test_framework)
 
-add_executable(unit_tests main.cpp handle.cpp)
+add_executable(unit_tests main.cpp error.cpp handle.cpp)
 target_link_libraries(unit_tests PRIVATE winapi_common)
 target_link_libraries(unit_tests PRIVATE Boost::disable_autolinking Boost::unit_test_framework)
 set_target_properties(unit_tests PROPERTIES OUTPUT_NAME winapi-common-unit-tests)
