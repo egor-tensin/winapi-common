@@ -6,10 +6,16 @@
 #pragma once
 
 #include "error.hpp"
-#include "string.hpp"
 
-#include <shellapi.h>
+#include <winapi/utf8.hpp>
+
+#include <boost/algorithm/string.hpp>
+#include <boost/config.hpp>
+
+// clang-format off
 #include <windows.h>
+#include <shellapi.h>
+// clang-format on
 
 #include <cstddef>
 #include <memory>
@@ -23,21 +29,21 @@ namespace winapi {
 
 class CommandLine {
 public:
-    static CommandLine query() { return build_from_string(GetCommandLine()); }
+    static CommandLine query() { return build_from_string(::GetCommandLineW()); }
 
     static CommandLine build_from_main(int argc, wchar_t* argv[]) {
         if (argc < 1)
             throw std::range_error{"invalid argc value"};
 
-        std::wstring argv0{argv[0]};
+        std::string argv0{narrow(argv[0])};
         --argc;
         ++argv;
 
-        std::vector<std::wstring> args;
+        std::vector<std::string> args;
         args.reserve(argc);
 
         for (int i = 0; i < argc; ++i)
-            args.emplace_back(argv[i]);
+            args.emplace_back(narrow(argv[i]));
 
         return {std::move(argv0), std::move(args)};
     }
@@ -46,118 +52,129 @@ public:
 
     bool has_argv0() const { return !argv0.empty(); }
 
-    std::wstring get_argv0() const { return argv0; }
+    std::string get_argv0() const { return argv0; }
 
-    std::wstring escape_argv0() const { return escape(get_argv0()); }
+    std::string escape_argv0() const { return escape(get_argv0()); }
 
     bool has_args() const { return !get_args().empty(); }
 
-    const std::vector<std::wstring>& get_args() const { return args; }
+    const std::vector<std::string>& get_args() const { return args; }
 
-    std::vector<std::wstring> escape_args() const {
-        std::vector<std::wstring> safe;
+    std::vector<std::string> escape_args() const {
+        std::vector<std::string> safe;
         safe.reserve(args.size());
         for (const auto& arg : args)
             safe.emplace_back(escape(arg));
         return safe;
     }
 
-    static constexpr wchar_t sep() { return L' '; }
+    static BOOST_CONSTEXPR char sep() { return ' '; }
 
-    std::wstring join_args() const { return string::join(sep(), escape_args()); }
+    std::string join_args() const {
+        return boost::algorithm::join(escape_args(), std::string{sep()});
+    }
 
-    std::wstring join() const {
+    std::string join() const {
         if (!has_argv0())
             throw std::logic_error{"argv[0] isn't defined"};
-        std::wostringstream oss;
+        std::ostringstream oss;
         oss << escape_argv0();
         if (has_args())
-            oss << sep() << string::join(sep(), escape_args());
+            oss << sep() << join_args();
         return oss.str();
     }
 
 private:
+    static CommandLine build_from_string(const std::string& src) {
+        return build_from_string(widen(src));
+    }
+
     static CommandLine build_from_string(std::wstring src) {
-        string::trim(src);
+        boost::trim(src);
         if (src.empty())
             return {};
 
         int argc = 0;
-        std::unique_ptr<wchar_t*, LocalDelete> argv{CommandLineToArgvW(src.c_str(), &argc)};
+        std::unique_ptr<wchar_t*, LocalDelete> argv{::CommandLineToArgvW(src.c_str(), &argc)};
 
         if (argv.get() == NULL)
-            error::raise("CommandLineToArgvW");
+            throw error::windows(GetLastError(), "CommandLineToArgvW");
 
         if (argc == 0)
             return {};
 
-        std::wstring argv0{argv.get()[0]};
+        std::string argv0{narrow(argv.get()[0])};
 
-        std::vector<std::wstring> args;
+        std::vector<std::string> args;
         args.reserve(argc - 1);
 
         for (int i = 1; i < argc; ++i)
-            args.emplace_back(argv.get()[i]);
+            args.emplace_back(narrow(argv.get()[i]));
 
         return {std::move(argv0), std::move(args)};
     }
 
-    inline std::wstring escape_for_cmd(const std::wstring& arg) {
-        static constexpr auto escape_symbol = L'^';
-        static constexpr auto dangerous_symbols = L"!\"%&()<>^|";
+    struct LocalDelete {
+        void operator()(wchar_t* argv[]) const { ::LocalFree(argv); }
+    };
+
+    static std::string escape_for_cmd(const std::string& arg) {
+        BOOST_STATIC_CONSTEXPR auto escape_symbol = '^';
+        static const std::string dangerous_symbols{"^!\"%&()<>|"};
 
         auto safe = escape(arg);
-        string::prefix_with(safe, dangerous_symbols, escape_symbol);
+        for (const auto danger : dangerous_symbols) {
+            std::ostringstream replacement;
+            replacement << escape_symbol << danger;
+            boost::replace_all(safe, std::string{danger}, replacement.str());
+        }
         return safe;
     }
 
-    static std::wstring escape(const std::wstring& arg) {
-        std::wstring safe;
+    static std::string escape(const std::string& arg) {
+        std::string safe;
+        // Including the quotes:
         safe.reserve(arg.length() + 2);
 
-        safe.push_back(L'"');
+        safe.push_back('"');
 
         for (auto it = arg.cbegin(); it != arg.cend(); ++it) {
             std::size_t numof_backslashes = 0;
 
-            for (; it != arg.cend() && *it == L'\\'; ++it)
+            for (; it != arg.cend() && *it == '\\'; ++it)
                 ++numof_backslashes;
 
             if (it == arg.cend()) {
                 safe.reserve(safe.capacity() + numof_backslashes);
-                safe.append(2 * numof_backslashes, L'\\');
+                safe.append(2 * numof_backslashes, '\\');
                 break;
             }
 
             switch (*it) {
                 case L'"':
                     safe.reserve(safe.capacity() + numof_backslashes + 1);
-                    safe.append(2 * numof_backslashes + 1, L'\\');
+                    safe.append(2 * numof_backslashes + 1, '\\');
                     break;
 
                 default:
-                    safe.append(numof_backslashes, L'\\');
+                    safe.append(numof_backslashes, '\\');
                     break;
             }
 
             safe.push_back(*it);
         }
 
-        safe.push_back(L'"');
+        safe.push_back('"');
         return safe;
     }
 
-    struct LocalDelete {
-        void operator()(wchar_t* argv[]) const { LocalFree(argv); }
-    };
+    CommandLine(std::vector<std::string>&& args) : args{std::move(args)} {}
 
-    CommandLine(std::vector<std::wstring>&& args) : args{std::move(args)} {}
-
-    CommandLine(std::wstring&& argv0, std::vector<std::wstring>&& args = {})
+    CommandLine(std::string&& argv0, std::vector<std::string>&& args = {})
         : argv0{std::move(argv0)}, args{std::move(args)} {}
 
-    const std::wstring argv0;
-    const std::vector<std::wstring> args;
+    const std::string argv0;
+    const std::vector<std::string> args;
 };
 
 } // namespace winapi
