@@ -3,10 +3,12 @@
 // For details, see https://github.com/egor-tensin/winapi-common.
 // Distributed under the MIT License.
 
+// Simple UTF-16 echo.
+
 #include <iostream>
 
 int wmain(int argc, wchar_t* argv[]) {
-    for (int i = 0; i < argc; ++i) {
+    for (int i = 1; i < argc; ++i) {
         std::wcout << argv[i] << L'\n';
     }
     return 0;
