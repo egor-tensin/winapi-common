@@ -9,6 +9,8 @@
 
 #include <windows.h>
 
+#include <sstream>
+#include <stdexcept>
 #include <string>
 #include <system_error>
 
@@ -30,6 +32,13 @@ inline const CategoryWindows& category_windows() {
 }
 
 std::system_error windows(DWORD code, const char* function);
+
+template <typename Ret>
+std::runtime_error custom(Ret ret, const char* function) {
+    std::ostringstream oss;
+    oss << "Function " << function << " failed with error code " << ret;
+    return std::runtime_error{oss.str()};
+}
 
 } // namespace error
 } // namespace winapi

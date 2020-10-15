@@ -21,6 +21,12 @@ public:
 
     CommandLine() = default;
 
+    CommandLine(const std::string& argv0, const std::vector<std::string>& args = {})
+        : argv0(argv0), args(args) {}
+
+    CommandLine(std::string&& argv0, std::vector<std::string>&& args = {})
+        : argv0(std::move(argv0)), args(std::move(args)) {}
+
     bool has_argv0() const { return !argv0.empty(); }
 
     std::string get_argv0() const { return argv0; }
@@ -49,9 +55,6 @@ private:
     static std::string escape(const std::string&);
 
     CommandLine(std::vector<std::string>&& args) : args(std::move(args)) {}
-
-    CommandLine(std::string&& argv0, std::vector<std::string>&& args = {})
-        : argv0(std::move(argv0)), args(std::move(args)) {}
 
     const std::string argv0;
     const std::vector<std::string> args;
