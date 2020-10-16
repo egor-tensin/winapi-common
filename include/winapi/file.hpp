@@ -6,6 +6,7 @@
 #pragma once
 
 #include "handle.hpp"
+#include "path.hpp"
 
 #include <string>
 #include <utility>
@@ -17,7 +18,9 @@ public:
     explicit File(Handle&& handle) : Handle{std::move(handle)} {}
 
     static Handle open_for_reading(const std::string&);
+    static Handle open_for_reading(const CanonicalPath&);
     static Handle open_for_writing(const std::string&);
+    static Handle open_for_writing(const CanonicalPath&);
 
     using Handle::close;
 

@@ -6,6 +6,7 @@
 #pragma once
 
 #include "handle.hpp"
+#include "path.hpp"
 #include "pipe.hpp"
 
 #include <boost/config.hpp>
@@ -45,6 +46,7 @@ inline void swap(Stream& a, Stream& b) BOOST_NOEXCEPT_OR_NOTHROW {
 struct Stdin : Stream {
     Stdin();
     explicit Stdin(const std::string& file);
+    explicit Stdin(const CanonicalPath& file);
     explicit Stdin(Pipe&);
 
     // VS 2013 won't generate these automatically.
@@ -62,6 +64,7 @@ struct Stdin : Stream {
 struct Stdout : Stream {
     Stdout();
     explicit Stdout(const std::string& file);
+    explicit Stdout(const CanonicalPath& file);
     explicit Stdout(Pipe&);
 
     // VS 2013 won't generate these automatically.
@@ -79,6 +82,7 @@ struct Stdout : Stream {
 struct Stderr : Stream {
     Stderr();
     explicit Stderr(const std::string& file);
+    explicit Stderr(const CanonicalPath& file);
     explicit Stderr(Pipe&);
 
     // VS 2013 won't generate these automatically.

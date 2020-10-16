@@ -6,6 +6,7 @@
 #include <winapi/error.hpp>
 #include <winapi/file.hpp>
 #include <winapi/handle.hpp>
+#include <winapi/path.hpp>
 #include <winapi/utf8.hpp>
 
 #include <cstring>
@@ -13,6 +14,14 @@
 
 namespace winapi {
 namespace {
+
+std::wstring to_system_path(const std::string& path) {
+    return widen(path);
+}
+
+std::wstring to_system_path(const CanonicalPath& path) {
+    return widen(R"(\\?\)" + path.get());
+}
 
 struct CreateFileParams {
     static CreateFileParams read() {
@@ -39,15 +48,13 @@ private:
     CreateFileParams() = default;
 };
 
-Handle open_file(const std::string& path, const CreateFileParams& params) {
-    const auto unicode_path = LR"(\\?\)" + widen(path);
-
+Handle open_file(const std::wstring& path, const CreateFileParams& params) {
     SECURITY_ATTRIBUTES attributes;
     std::memset(&attributes, 0, sizeof(attributes));
     attributes.nLength = sizeof(attributes);
     attributes.bInheritHandle = TRUE;
 
-    const auto handle = ::CreateFileW(unicode_path.c_str(),
+    const auto handle = ::CreateFileW(path.c_str(),
                                       params.dwDesiredAccess,
                                       params.dwShareMode,
                                       &attributes,
@@ -65,11 +72,19 @@ Handle open_file(const std::string& path, const CreateFileParams& params) {
 } // namespace
 
 Handle File::open_for_reading(const std::string& path) {
-    return open_file(path, CreateFileParams::read());
+    return open_file(to_system_path(path), CreateFileParams::read());
+}
+
+Handle File::open_for_reading(const CanonicalPath& path) {
+    return open_file(to_system_path(path), CreateFileParams::read());
 }
 
 Handle File::open_for_writing(const std::string& path) {
-    return open_file(path, CreateFileParams::write());
+    return open_file(to_system_path(path), CreateFileParams::write());
+}
+
+Handle File::open_for_writing(const CanonicalPath& path) {
+    return open_file(to_system_path(path), CreateFileParams::write());
 }
 
 } // namespace winapi
