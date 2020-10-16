@@ -5,6 +5,8 @@
 
 #pragma once
 
+#include "buffer.hpp"
+
 #include <boost/config.hpp>
 
 #include <windows.h>
@@ -12,7 +14,6 @@
 #include <cstddef>
 #include <memory>
 #include <utility>
-#include <vector>
 
 namespace winapi {
 
@@ -36,8 +37,6 @@ public:
     static Handle std_in();
     static Handle std_out();
     static Handle std_err();
-
-    typedef std::vector<unsigned char> Buffer;
 
     Buffer read() const;
 

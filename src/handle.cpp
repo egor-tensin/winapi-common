@@ -3,6 +3,7 @@
 // For details, see https://github.com/egor-tensin/winapi-common.
 // Distributed under the MIT License.
 
+#include <winapi/buffer.hpp>
 #include <winapi/error.hpp>
 #include <winapi/handle.hpp>
 #include <winapi/workarounds.hpp>
@@ -15,6 +16,7 @@
 #include <cstddef>
 #include <sstream>
 #include <stdexcept>
+#include <utility>
 
 namespace winapi {
 namespace {
@@ -100,15 +102,13 @@ bool Handle::read_chunk(Buffer& buffer) const {
     }
 }
 
-Handle::Buffer Handle::read() const {
+Buffer Handle::read() const {
     Buffer buffer;
-    Buffer chunk;
 
     while (true) {
+        Buffer chunk;
         const auto next = read_chunk(chunk);
-
-        buffer.reserve(buffer.size() + chunk.size());
-        buffer.insert(buffer.cend(), chunk.cbegin(), chunk.cend());
+        buffer.add(chunk);
 
         if (!next) {
             break;
