@@ -52,7 +52,7 @@ Handle create_process(EscapedCommandLine cmd_line, Process::IO& io) {
 }
 
 EscapedCommandLine escape_command_line(const CommandLine& cmd_line) {
-    const auto unicode_cmd_line = widen(cmd_line.join());
+    const auto unicode_cmd_line = widen(cmd_line.to_string());
     EscapedCommandLine buffer;
     buffer.reserve(unicode_cmd_line.size() + 1);
     buffer.assign(unicode_cmd_line.cbegin(), unicode_cmd_line.cend());

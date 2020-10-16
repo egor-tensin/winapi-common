@@ -18,8 +18,8 @@
 #include <cstddef>
 #include <memory>
 #include <stdexcept>
-#include <sstream>
 #include <string>
+#include <sstream>
 #include <utility>
 #include <vector>
 
@@ -30,59 +30,11 @@ struct LocalDelete {
     void operator()(wchar_t* argv[]) const { ::LocalFree(argv); }
 };
 
-} // namespace
-
-CommandLine CommandLine::query() {
-    return build_from_string(::GetCommandLineW());
-}
-
-CommandLine CommandLine::build_from_main(int argc, wchar_t* argv[]) {
-    if (argc < 1)
-        throw std::range_error{"invalid argc value"};
-
-    std::string argv0{narrow(argv[0])};
-    --argc;
-    ++argv;
-
-    std::vector<std::string> args;
-    args.reserve(argc);
-
-    for (int i = 0; i < argc; ++i)
-        args.emplace_back(narrow(argv[i]));
-
-    return {std::move(argv0), std::move(args)};
-}
-
-std::vector<std::string> CommandLine::escape_args() const {
-    std::vector<std::string> safe;
-    safe.reserve(args.size());
-    for (const auto& arg : args)
-        safe.emplace_back(escape(arg));
-    return safe;
-}
-
-std::string CommandLine::join_args() const {
-    return boost::algorithm::join(escape_args(), std::string{sep()});
-}
-
-std::string CommandLine::join() const {
-    if (!has_argv0())
-        throw std::logic_error{"argv[0] isn't defined"};
-    std::ostringstream oss;
-    oss << escape_argv0();
-    if (has_args())
-        oss << sep() << join_args();
-    return oss.str();
-}
-
-CommandLine CommandLine::build_from_string(const std::string& src) {
-    return build_from_string(widen(src));
-}
-
-CommandLine CommandLine::build_from_string(std::wstring src) {
+CommandLine do_parse(std::wstring src) {
     boost::trim(src);
-    if (src.empty())
-        return {};
+    if (src.empty()) {
+        throw std::runtime_error{"Command line cannot be an empty string"};
+    }
 
     int argc = 0;
     std::unique_ptr<wchar_t*, LocalDelete> argv{::CommandLineToArgvW(src.c_str(), &argc)};
@@ -90,8 +42,9 @@ CommandLine CommandLine::build_from_string(std::wstring src) {
     if (argv.get() == NULL)
         throw error::windows(GetLastError(), "CommandLineToArgvW");
 
-    if (argc == 0)
-        return {};
+    if (argc == 0) {
+        throw std::runtime_error{"Command line must contain at least one token"};
+    }
 
     std::string argv0{narrow(argv.get()[0])};
 
@@ -104,17 +57,31 @@ CommandLine CommandLine::build_from_string(std::wstring src) {
     return {std::move(argv0), std::move(args)};
 }
 
-std::string CommandLine::escape_for_cmd(const std::string& arg) {
-    BOOST_STATIC_CONSTEXPR auto escape_symbol = '^';
-    static const std::string dangerous_symbols{"^!\"%&()<>|"};
+} // namespace
 
-    auto safe = escape(arg);
-    for (const auto danger : dangerous_symbols) {
-        std::ostringstream replacement;
-        replacement << escape_symbol << danger;
-        boost::replace_all(safe, std::string{danger}, replacement.str());
-    }
-    return safe;
+CommandLine CommandLine::query() {
+    return do_parse(::GetCommandLineW());
+}
+
+CommandLine CommandLine::parse(const std::string& src) {
+    return do_parse(widen(src));
+}
+
+CommandLine CommandLine::from_main(int argc, wchar_t* argv[]) {
+    if (argc < 1)
+        throw std::range_error{"argc must be a positive number"};
+
+    std::string argv0{narrow(argv[0])};
+    --argc;
+    ++argv;
+
+    std::vector<std::string> args;
+    args.reserve(argc);
+
+    for (int i = 0; i < argc; ++i)
+        args.emplace_back(narrow(argv[i]));
+
+    return {std::move(argv0), std::move(args)};
 }
 
 std::string CommandLine::escape(const std::string& arg) {
@@ -151,6 +118,39 @@ std::string CommandLine::escape(const std::string& arg) {
     }
 
     safe.push_back('"');
+    return safe;
+}
+
+std::string CommandLine::escape_cmd(const std::string& arg) {
+    BOOST_STATIC_CONSTEXPR auto escape_symbol = '^';
+    static const std::string dangerous_symbols{"^!\"%&()<>|"};
+
+    auto safe = escape(arg);
+    for (const auto danger : dangerous_symbols) {
+        std::ostringstream replacement;
+        replacement << escape_symbol << danger;
+        boost::replace_all(safe, std::string{danger}, replacement.str());
+    }
+    return safe;
+}
+
+std::string CommandLine::to_string() const {
+    std::ostringstream oss;
+    oss << escape(get_argv0());
+    if (has_args())
+        oss << token_sep() << args_to_string();
+    return oss.str();
+}
+
+std::string CommandLine::args_to_string() const {
+    return boost::algorithm::join(escape_args(), std::string{token_sep()});
+}
+
+std::vector<std::string> CommandLine::escape_args() const {
+    std::vector<std::string> safe;
+    safe.reserve(args.size());
+    for (const auto& arg : args)
+        safe.emplace_back(escape(arg));
     return safe;
 }
 
