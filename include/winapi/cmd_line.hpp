@@ -29,6 +29,10 @@ public:
     CommandLine(std::string&& argv0, std::vector<std::string>&& args = {})
         : argv0(std::move(argv0)), args(std::move(args)) {}
 
+    CommandLine(const std::vector<std::string>& argv);
+
+    CommandLine(std::vector<std::string>&& argv);
+
     static std::string escape(const std::string&);
 
     static std::string escape_cmd(const std::string&);
@@ -43,12 +47,16 @@ public:
 
     const std::vector<std::string>& get_args() const { return args; }
 
+    std::vector<std::string> get_argv() const;
+
 private:
     static BOOST_CONSTEXPR char token_sep() { return ' '; }
 
     std::string escape_argv0() const { return escape(get_argv0()); }
 
     std::vector<std::string> escape_args() const;
+
+    std::vector<std::string> escape_argv() const;
 
     std::string argv0;
     std::vector<std::string> args;

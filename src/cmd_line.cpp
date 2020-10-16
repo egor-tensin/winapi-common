@@ -57,6 +57,23 @@ CommandLine do_parse(std::wstring src) {
     return {std::move(argv0), std::move(args)};
 }
 
+std::string split_argv0(std::vector<std::string>& argv) {
+    if (argv.empty()) {
+        throw std::range_error{"argv must contain at least one element"};
+    }
+    const auto argv0 = argv[0];
+    argv.erase(argv.begin());
+    return argv0;
+}
+
+std::vector<std::string> escape_all(const std::vector<std::string>& xs) {
+    std::vector<std::string> escaped;
+    escaped.reserve(xs.size());
+    for (const auto& x : xs)
+        escaped.emplace_back(CommandLine::escape(x));
+    return escaped;
+}
+
 } // namespace
 
 CommandLine CommandLine::query() {
@@ -71,17 +88,21 @@ CommandLine CommandLine::from_main(int argc, wchar_t* argv[]) {
     if (argc < 1)
         throw std::range_error{"argc must be a positive number"};
 
-    std::string argv0{narrow(argv[0])};
-    --argc;
-    ++argv;
-
-    std::vector<std::string> args;
-    args.reserve(argc);
+    std::vector<std::string> utf8_argv;
+    utf8_argv.reserve(argc);
 
     for (int i = 0; i < argc; ++i)
-        args.emplace_back(narrow(argv[i]));
+        utf8_argv.emplace_back(narrow(argv[i]));
 
-    return {std::move(argv0), std::move(args)};
+    return {std::move(utf8_argv)};
+}
+
+CommandLine::CommandLine(const std::vector<std::string>& argv) : args(argv) {
+    argv0 = split_argv0(args);
+}
+
+CommandLine::CommandLine(std::vector<std::string>&& argv) : args(std::move(argv)) {
+    argv0 = split_argv0(args);
 }
 
 std::string CommandLine::escape(const std::string& arg) {
@@ -135,23 +156,25 @@ std::string CommandLine::escape_cmd(const std::string& arg) {
 }
 
 std::string CommandLine::to_string() const {
-    std::ostringstream oss;
-    oss << escape(get_argv0());
-    if (has_args())
-        oss << token_sep() << args_to_string();
-    return oss.str();
+    return boost::algorithm::join(escape_argv(), std::string{token_sep()});
 }
 
 std::string CommandLine::args_to_string() const {
     return boost::algorithm::join(escape_args(), std::string{token_sep()});
 }
 
+std::vector<std::string> CommandLine::get_argv() const {
+    auto argv = get_args();
+    argv.emplace(argv.begin(), get_argv0());
+    return argv;
+}
+
 std::vector<std::string> CommandLine::escape_args() const {
-    std::vector<std::string> safe;
-    safe.reserve(args.size());
-    for (const auto& arg : args)
-        safe.emplace_back(escape(arg));
-    return safe;
+    return escape_all(get_args());
+}
+
+std::vector<std::string> CommandLine::escape_argv() const {
+    return escape_all(get_argv());
 }
 
 } // namespace winapi
