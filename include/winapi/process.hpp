@@ -48,7 +48,9 @@ public:
     static Process create(const CommandLine&);
     static Process create(const CommandLine&, IO);
 
-    void wait();
+    void wait() const;
+
+    int get_exit_code() const;
 
 private:
     explicit Process(Handle&& handle) : m_handle{std::move(handle)} {}

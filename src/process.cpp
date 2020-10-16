@@ -13,6 +13,7 @@
 #include <windows.h>
 
 #include <cstring>
+#include <stdexcept>
 #include <utility>
 #include <vector>
 
@@ -79,12 +80,11 @@ Process Process::create(const CommandLine& cmd_line, IO io) {
     return Process{create_process(cmd_line, io)};
 }
 
-void Process::wait() {
+void Process::wait() const {
     const auto ret = ::WaitForSingleObject(static_cast<HANDLE>(m_handle), INFINITE);
 
     switch (ret) {
         case WAIT_OBJECT_0:
-            m_handle.close();
             return;
         case WAIT_FAILED:
             throw error::windows(GetLastError(), "WaitForSingleObject");
@@ -92,6 +92,22 @@ void Process::wait() {
             // Shouldn't happen.
             throw error::custom(ret, "WaitForSingleObject");
     }
+}
+
+int Process::get_exit_code() const {
+    DWORD ec = 0;
+
+    const auto ret = ::GetExitCodeProcess(static_cast<HANDLE>(m_handle), &ec);
+
+    if (!ret) {
+        throw error::windows(GetLastError(), "GetExitCodeProcess");
+    }
+
+    if (ec == STILL_ACTIVE) {
+        throw std::runtime_error{"Attempted to query the exit code of a running process"};
+    }
+
+    return static_cast<int>(ec);
 }
 
 } // namespace winapi
