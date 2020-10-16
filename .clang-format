@@ -4,6 +4,7 @@ BasedOnStyle: Chromium
 
 AccessModifierOffset: -4
 BinPackArguments: false
+BreakStringLiterals: false
 ColumnLimit: 100
 IncludeBlocks: Regroup
 IndentWidth: 4
