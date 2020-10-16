@@ -5,50 +5,57 @@
 
 #pragma once
 
-#include "workarounds.hpp"
-
 #include <boost/config.hpp>
 
 #include <windows.h>
 
-#include <cassert>
+#include <cstddef>
 #include <memory>
 #include <utility>
+#include <vector>
 
 namespace winapi {
 
 class Handle {
 public:
     Handle() = default;
+    explicit Handle(HANDLE);
 
-    explicit Handle(HANDLE raw) : impl{raw} {}
+    Handle(Handle&& other) BOOST_NOEXCEPT_OR_NOTHROW;
+    Handle& operator=(Handle other) BOOST_NOEXCEPT_OR_NOTHROW;
 
-    Handle(Handle&& other) BOOST_NOEXCEPT_OR_NOTHROW { swap(other); }
+    void swap(Handle& other) BOOST_NOEXCEPT_OR_NOTHROW;
 
-    Handle& operator=(Handle other) BOOST_NOEXCEPT_OR_NOTHROW {
-        swap(other);
-        return *this;
-    }
+    explicit operator HANDLE() const { return m_impl.get(); }
 
-    void swap(Handle& other) BOOST_NOEXCEPT_OR_NOTHROW {
-        using std::swap;
-        swap(impl, other.impl);
-    }
+    bool is_invalid() const;
 
-    explicit operator HANDLE() const { return impl.get(); }
+    void close();
+
+    bool is_std() const;
+    static Handle std_in();
+    static Handle std_out();
+    static Handle std_err();
+
+    typedef std::vector<unsigned char> Buffer;
+
+    Buffer read() const;
+
+    BOOST_STATIC_CONSTEXPR std::size_t max_chunk_size = 16 * 1024;
+    bool read_chunk(Buffer& read_chunk) const;
+
+    void write(const void*, std::size_t nb) const;
+    void write(const Buffer& buffer) const;
+
+    void inherit(bool yes = true) const;
+    void dont_inherit() const { inherit(false); }
 
 private:
     struct Close {
-        void operator()(HANDLE raw) const {
-            if (raw == NULL || raw == INVALID_HANDLE_VALUE)
-                return;
-            const auto ret = ::CloseHandle(raw);
-            assert(ret);
-            WINAPI_UNUSED_PARAMETER(ret);
-        }
+        void operator()(HANDLE) const;
     };
 
-    std::unique_ptr<void, Close> impl;
+    std::unique_ptr<void, Close> m_impl;
 
     Handle(const Handle&) = delete;
 };

@@ -21,42 +21,62 @@ namespace {
 
 typedef std::vector<wchar_t> EscapedCommandLine;
 
-Handle create_process(EscapedCommandLine cmd_line) {
-    BOOST_STATIC_CONSTEXPR DWORD flags = CREATE_NO_WINDOW | CREATE_UNICODE_ENVIRONMENT;
+Handle create_process(EscapedCommandLine cmd_line, Process::IO& io) {
+    BOOST_STATIC_CONSTEXPR DWORD flags = /*CREATE_NO_WINDOW | */ CREATE_UNICODE_ENVIRONMENT;
 
     STARTUPINFOW startup_info;
     std::memset(&startup_info, 0, sizeof(startup_info));
     startup_info.cb = sizeof(startup_info);
+    startup_info.dwFlags = STARTF_USESTDHANDLES;
+    startup_info.hStdInput = static_cast<HANDLE>(io.std_in.handle);
+    startup_info.hStdOutput = static_cast<HANDLE>(io.std_out.handle);
+    startup_info.hStdError = static_cast<HANDLE>(io.std_err.handle);
 
     PROCESS_INFORMATION child_info;
     std::memset(&child_info, 0, sizeof(child_info));
 
     const auto ret = ::CreateProcessW(
-        NULL, cmd_line.data(), NULL, NULL, FALSE, flags, NULL, NULL, &startup_info, &child_info);
+        NULL, cmd_line.data(), NULL, NULL, TRUE, flags, NULL, NULL, &startup_info, &child_info);
 
     if (!ret) {
         throw error::windows(GetLastError(), "CreateProcessW");
     }
 
-    Handle h_process{child_info.hProcess};
-    Handle h_thread{child_info.hThread};
+    io.close();
 
-    return std::move(h_process);
+    Handle process{child_info.hProcess};
+    Handle thread{child_info.hThread};
+
+    return std::move(process);
 }
 
 EscapedCommandLine escape_command_line(const CommandLine& cmd_line) {
-    const auto whole = widen(cmd_line.join());
-    return {whole.cbegin(), whole.cend()};
+    const auto unicode_cmd_line = widen(cmd_line.join());
+    EscapedCommandLine buffer;
+    buffer.reserve(unicode_cmd_line.size() + 1);
+    buffer.assign(unicode_cmd_line.cbegin(), unicode_cmd_line.cend());
+    buffer.emplace_back(L'\0');
+    return buffer;
 }
 
-Handle create_process(const CommandLine& cmd_line) {
-    return create_process(escape_command_line(cmd_line));
+Handle create_process(const CommandLine& cmd_line, Process::IO& io) {
+    return create_process(escape_command_line(cmd_line), io);
 }
 
 } // namespace
 
+void Process::IO::close() {
+    std_in.handle.close();
+    std_out.handle.close();
+    std_err.handle.close();
+}
+
 Process Process::create(const CommandLine& cmd_line) {
-    return Process{create_process(cmd_line)};
+    return create(cmd_line, {});
+}
+
+Process Process::create(const CommandLine& cmd_line, IO io) {
+    return Process{create_process(cmd_line, io)};
 }
 
 void Process::wait() {
@@ -64,7 +84,7 @@ void Process::wait() {
 
     switch (ret) {
         case WAIT_OBJECT_0:
-            m_handle = Handle{};
+            m_handle.close();
             return;
         case WAIT_FAILED:
             throw error::windows(GetLastError(), "WaitForSingleObject");

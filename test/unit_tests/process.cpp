@@ -4,52 +4,73 @@
 // Distributed under the MIT License.
 
 #include <winapi/cmd_line.hpp>
+#include <winapi/pipe.hpp>
 #include <winapi/process.hpp>
+#include <winapi/utf8.hpp>
 
 #include <boost/test/unit_test.hpp>
 
 #include <stdexcept>
 #include <string>
+#include <utility>
+
+using namespace winapi;
 
 namespace {
 
-class WhereTestExe {
+class WithEchoExe {
 public:
-    WhereTestExe() : m_test_exe(find_test_exe()) {}
+    WithEchoExe() : m_echo_exe(find_echo_exe()) {}
 
-    const std::string& get_test_exe() { return m_test_exe; }
+    const std::string& get_echo_exe() { return m_echo_exe; }
 
 private:
-    static std::string find_test_exe() {
-        static const std::string param_prefix{"--test_exe="};
-        const auto cmd_line = winapi::CommandLine::query();
+    static std::string find_echo_exe() {
+        static const std::string prefix{"--echo_exe="};
+        return find_param_value(prefix);
+    }
+
+    static std::string find_param_value(const std::string& param_prefix) {
+        const auto cmd_line = CommandLine::query();
         const auto& args = cmd_line.get_args();
         for (const auto& arg : args) {
             if (arg.rfind(param_prefix, 0) == 0) {
                 return arg.substr(param_prefix.length());
             }
         }
-        throw std::runtime_error{"couldn't find parameter --test_exe"};
+        throw std::runtime_error{"couldn't find parameter " + param_prefix};
     }
 
-    const std::string m_test_exe;
+    const std::string m_echo_exe;
 };
 
 } // namespace
 
 BOOST_AUTO_TEST_SUITE(process_tests)
 
-BOOST_AUTO_TEST_CASE(create_dir) {
-    const winapi::CommandLine cmd_line{"cmd.exe", {"/c", "dir"}};
-    auto process = winapi::Process::create(cmd_line);
+BOOST_FIXTURE_TEST_CASE(create_echo, WithEchoExe) {
+    const CommandLine cmd_line{get_echo_exe()};
+    auto process = Process::create(cmd_line);
+    process.wait();
+    BOOST_TEST(true, "Successfully created test process");
+}
+
+BOOST_FIXTURE_TEST_CASE(create_echo_with_args, WithEchoExe) {
+    const CommandLine cmd_line{get_echo_exe(), {"1", "2", "3"}};
+    auto process = Process::create(cmd_line);
     process.wait();
 }
 
-BOOST_FIXTURE_TEST_CASE(create_test_exe, WhereTestExe) {
-    const winapi::CommandLine cmd_line{get_test_exe()};
-    auto process = winapi::Process::create(cmd_line);
+BOOST_FIXTURE_TEST_CASE(create_echo_pipe, WithEchoExe) {
+    const CommandLine cmd_line{get_echo_exe(), {"1", "2", "3"}};
+    Process::IO io;
+    Pipe stdout_pipe;
+    io.std_out = process::Stdout{stdout_pipe};
+    auto process = Process::create(cmd_line, std::move(io));
+    const auto output = stdout_pipe.read_end().read();
     process.wait();
-    BOOST_TEST(true, "Successfully created test process");
+    const auto utf8 = narrow(output);
+    BOOST_TEST(utf8 == "1\r\n2\r\n3\r\n");
 }
 
 BOOST_AUTO_TEST_SUITE_END()

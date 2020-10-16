@@ -1,6 +1,6 @@
 file(GLOB unit_tests_src "*.cpp")
 add_executable(unit_tests ${unit_tests_src})
-target_link_libraries(unit_tests PRIVATE winapi_common)
+target_link_libraries(unit_tests PRIVATE winapi_common winapi_utf8)
 set_target_properties(unit_tests PROPERTIES OUTPUT_NAME winapi-common-unit-tests)
 
 find_package(Boost REQUIRED COMPONENTS unit_test_framework)

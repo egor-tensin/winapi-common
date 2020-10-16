@@ -3,8 +3,11 @@
 // For details, see https://github.com/egor-tensin/winapi-common.
 // Distributed under the MIT License.
 
+#pragma once
+
 #include "cmd_line.hpp"
 #include "handle.hpp"
+#include "stream.hpp"
 
 #include <utility>
 
@@ -12,7 +15,16 @@ namespace winapi {
 
 class Process {
 public:
+    struct IO {
+        process::Stdin std_in;
+        process::Stdout std_out;
+        process::Stderr std_err;
+
+        void close();
+    };
+
     static Process create(const CommandLine&);
+    static Process create(const CommandLine&, IO);
 
     void wait();
 
