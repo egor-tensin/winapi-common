@@ -23,15 +23,15 @@ public:
 
     CommandLine() = default;
 
-    CommandLine(const std::string& argv0, const std::vector<std::string>& args = {})
-        : argv0(argv0), args(args) {}
+    explicit CommandLine(const std::string& argv0, const std::vector<std::string>& args = {})
+        : m_argv0(argv0), m_args(args) {}
 
-    CommandLine(std::string&& argv0, std::vector<std::string>&& args = {})
-        : argv0(std::move(argv0)), args(std::move(args)) {}
+    explicit CommandLine(std::string&& argv0, std::vector<std::string>&& args = {})
+        : m_argv0(std::move(argv0)), m_args(std::move(args)) {}
 
-    CommandLine(const std::vector<std::string>& argv);
+    explicit CommandLine(const std::vector<std::string>& argv);
 
-    CommandLine(std::vector<std::string>&& argv);
+    explicit CommandLine(std::vector<std::string>&& argv);
 
     static std::string escape(const std::string&);
 
@@ -41,11 +41,11 @@ public:
 
     std::string args_to_string() const;
 
-    std::string get_argv0() const { return argv0; }
+    std::string get_argv0() const { return m_argv0; }
 
     bool has_args() const { return !get_args().empty(); }
 
-    const std::vector<std::string>& get_args() const { return args; }
+    const std::vector<std::string>& get_args() const { return m_args; }
 
     std::vector<std::string> get_argv() const;
 
@@ -58,8 +58,8 @@ private:
 
     std::vector<std::string> escape_argv() const;
 
-    std::string argv0;
-    std::vector<std::string> args;
+    std::string m_argv0;
+    std::vector<std::string> m_args;
 };
 
 } // namespace winapi

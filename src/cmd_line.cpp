@@ -26,6 +26,14 @@
 namespace winapi {
 namespace {
 
+std::vector<std::string> narrow_all(int argc, wchar_t** argv) {
+    std::vector<std::string> utf;
+    utf.reserve(argc);
+    for (int i = 0; i < argc; ++i)
+        utf.emplace_back(narrow(argv[i]));
+    return utf;
+}
+
 struct LocalDelete {
     void operator()(wchar_t* argv[]) const { ::LocalFree(argv); }
 };
@@ -39,22 +47,14 @@ CommandLine do_parse(std::wstring src) {
     int argc = 0;
     std::unique_ptr<wchar_t*, LocalDelete> argv{::CommandLineToArgvW(src.c_str(), &argc)};
 
-    if (argv.get() == NULL)
+    if (argv.get() == NULL) {
         throw error::windows(GetLastError(), "CommandLineToArgvW");
-
+    }
     if (argc == 0) {
         throw std::runtime_error{"Command line must contain at least one token"};
     }
 
-    std::string argv0{narrow(argv.get()[0])};
-
-    std::vector<std::string> args;
-    args.reserve(argc - 1);
-
-    for (int i = 1; i < argc; ++i)
-        args.emplace_back(narrow(argv.get()[i]));
-
-    return {std::move(argv0), std::move(args)};
+    return CommandLine{narrow_all(argc, argv.get())};
 }
 
 std::string split_argv0(std::vector<std::string>& argv) {
@@ -87,22 +87,15 @@ CommandLine CommandLine::parse(const std::string& src) {
 CommandLine CommandLine::from_main(int argc, wchar_t* argv[]) {
     if (argc < 1)
         throw std::range_error{"argc must be a positive number"};
-
-    std::vector<std::string> utf8_argv;
-    utf8_argv.reserve(argc);
-
-    for (int i = 0; i < argc; ++i)
-        utf8_argv.emplace_back(narrow(argv[i]));
-
-    return {std::move(utf8_argv)};
+    return CommandLine{narrow_all(argc, argv)};
 }
 
-CommandLine::CommandLine(const std::vector<std::string>& argv) : args(argv) {
-    argv0 = split_argv0(args);
+CommandLine::CommandLine(const std::vector<std::string>& argv) : m_args(argv) {
+    m_argv0 = split_argv0(m_args);
 }
 
-CommandLine::CommandLine(std::vector<std::string>&& argv) : args(std::move(argv)) {
-    argv0 = split_argv0(args);
+CommandLine::CommandLine(std::vector<std::string>&& argv) : m_args(std::move(argv)) {
+    m_argv0 = split_argv0(m_args);
 }
 
 std::string CommandLine::escape(const std::string& arg) {
