@@ -5,9 +5,16 @@
 
 // Simple UTF-16 echo.
 
+// clang-format off
+#include <io.h>
+#include <fcntl.h>
+// clang-format on
+
 #include <iostream>
 
 int wmain(int argc, wchar_t* argv[]) {
+    _setmode(_fileno(stdout), _O_U16TEXT);
+
     for (int i = 1; i < argc; ++i) {
         std::wcout << argv[i] << L'\n';
     }
