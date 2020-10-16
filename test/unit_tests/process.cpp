@@ -4,6 +4,8 @@
 // Distributed under the MIT License.
 
 #include <winapi/cmd_line.hpp>
+#include <winapi/file.hpp>
+#include <winapi/path.hpp>
 #include <winapi/pipe.hpp>
 #include <winapi/process.hpp>
 #include <winapi/utf8.hpp>
@@ -15,6 +17,7 @@
 #include <utility>
 
 using namespace winapi;
+using namespace winapi::process;
 
 namespace {
 
@@ -48,29 +51,43 @@ private:
 
 BOOST_AUTO_TEST_SUITE(process_tests)
 
-BOOST_FIXTURE_TEST_CASE(create_echo, WithEchoExe) {
+BOOST_FIXTURE_TEST_CASE(echo, WithEchoExe) {
     const CommandLine cmd_line{get_echo_exe()};
-    auto process = Process::create(cmd_line);
+    const auto process = Process::create(cmd_line);
     process.wait();
-    BOOST_TEST(true, "Successfully created test process");
+    BOOST_TEST(process.get_exit_code() == 0);
 }
 
-BOOST_FIXTURE_TEST_CASE(create_echo_with_args, WithEchoExe) {
+BOOST_FIXTURE_TEST_CASE(echo_with_args, WithEchoExe) {
     const CommandLine cmd_line{get_echo_exe(), {"1", "2", "3"}};
-    auto process = Process::create(cmd_line);
+    const auto process = Process::create(cmd_line);
     process.wait();
+    BOOST_TEST(process.get_exit_code() == 0);
 }
 
-BOOST_FIXTURE_TEST_CASE(create_echo_pipe, WithEchoExe) {
-    const CommandLine cmd_line{get_echo_exe(), {"1", "2", "3"}};
+BOOST_FIXTURE_TEST_CASE(echo_stdout_to_pipe, WithEchoExe) {
+    const CommandLine cmd_line{get_echo_exe(), {"aaa", "bbb", "ccc"}};
     Process::IO io;
     Pipe stdout_pipe;
-    io.std_out = process::Stdout{stdout_pipe};
-    auto process = Process::create(cmd_line, std::move(io));
+    io.std_out = Stdout{stdout_pipe};
+    const auto process = Process::create(cmd_line, std::move(io));
     const auto output = stdout_pipe.read_end().read();
     process.wait();
+    BOOST_TEST(process.get_exit_code() == 0);
     const auto utf8 = narrow(output);
-    BOOST_TEST(utf8 == "1\r\n2\r\n3\r\n");
+    BOOST_TEST(utf8 == "aaa\r\nbbb\r\nccc\r\n");
+}
+
+BOOST_FIXTURE_TEST_CASE(echo_stdout_to_file, WithEchoExe) {
+    const CommandLine cmd_line{get_echo_exe(), {"XXX", "YYY", "ZZZ"}};
+    Process::IO io;
+    io.std_out = Stdout{CanonicalPath{"test.txt"}};
+    const auto process = Process::create(cmd_line, std::move(io));
+    process.wait();
+    BOOST_TEST(process.get_exit_code() == 0);
+    const auto output = File::open_for_reading(CanonicalPath{"test.txt"}).read();
+    const auto utf8 = narrow(output);
+    BOOST_TEST(utf8 == "XXX\r\nYYY\r\nZZZ\r\n");
 }
 
 BOOST_AUTO_TEST_SUITE_END()
