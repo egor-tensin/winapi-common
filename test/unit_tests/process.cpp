@@ -85,7 +85,7 @@ BOOST_FIXTURE_TEST_CASE(echo_stdout_to_file, WithEchoExe) {
     const auto process = Process::create(cmd_line, std::move(io));
     process.wait();
     BOOST_TEST(process.get_exit_code() == 0);
-    const auto output = File::open_for_reading(CanonicalPath{"test.txt"}).read();
+    const auto output = File::open_r(CanonicalPath{"test.txt"}).read();
     const auto utf8 = narrow(output);
     BOOST_TEST(utf8 == "XXX\r\nYYY\r\nZZZ\r\n");
 }

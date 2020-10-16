@@ -71,19 +71,19 @@ Handle open_file(const std::wstring& path, const CreateFileParams& params) {
 
 } // namespace
 
-Handle File::open_for_reading(const std::string& path) {
+Handle File::open_r(const std::string& path) {
     return open_file(to_system_path(path), CreateFileParams::read());
 }
 
-Handle File::open_for_reading(const CanonicalPath& path) {
+Handle File::open_r(const CanonicalPath& path) {
     return open_file(to_system_path(path), CreateFileParams::read());
 }
 
-Handle File::open_for_writing(const std::string& path) {
+Handle File::open_w(const std::string& path) {
     return open_file(to_system_path(path), CreateFileParams::write());
 }
 
-Handle File::open_for_writing(const CanonicalPath& path) {
+Handle File::open_w(const CanonicalPath& path) {
     return open_file(to_system_path(path), CreateFileParams::write());
 }
 

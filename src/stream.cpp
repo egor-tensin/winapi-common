@@ -20,17 +20,17 @@ Stdout::Stdout() : Stream{Handle::std_out()} {}
 
 Stderr::Stderr() : Stream{Handle::std_err()} {}
 
-Stdin::Stdin(const std::string& path) : Stream{File::open_for_reading(path)} {}
+Stdin::Stdin(const std::string& path) : Stream{File::open_r(path)} {}
 
-Stdin::Stdin(const CanonicalPath& path) : Stream{File::open_for_reading(path)} {}
+Stdin::Stdin(const CanonicalPath& path) : Stream{File::open_r(path)} {}
 
-Stdout::Stdout(const std::string& path) : Stream{File::open_for_writing(path)} {}
+Stdout::Stdout(const std::string& path) : Stream{File::open_w(path)} {}
 
-Stdout::Stdout(const CanonicalPath& path) : Stream{File::open_for_writing(path)} {}
+Stdout::Stdout(const CanonicalPath& path) : Stream{File::open_w(path)} {}
 
-Stderr::Stderr(const std::string& path) : Stream{File::open_for_writing(path)} {}
+Stderr::Stderr(const std::string& path) : Stream{File::open_w(path)} {}
 
-Stderr::Stderr(const CanonicalPath& path) : Stream{File::open_for_writing(path)} {}
+Stderr::Stderr(const CanonicalPath& path) : Stream{File::open_w(path)} {}
 
 Stdin::Stdin(Pipe& pipe) : Stream{std::move(pipe.read_end())} {
     pipe.write_end().dont_inherit();

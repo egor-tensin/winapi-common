@@ -17,10 +17,10 @@ class File : private Handle {
 public:
     explicit File(Handle&& handle) : Handle{std::move(handle)} {}
 
-    static Handle open_for_reading(const std::string&);
-    static Handle open_for_reading(const CanonicalPath&);
-    static Handle open_for_writing(const std::string&);
-    static Handle open_for_writing(const CanonicalPath&);
+    static Handle open_r(const std::string&);
+    static Handle open_r(const CanonicalPath&);
+    static Handle open_w(const std::string&);
+    static Handle open_w(const CanonicalPath&);
 
     using Handle::close;
 
