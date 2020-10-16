@@ -22,6 +22,9 @@ public:
     static Handle open_w(const std::string&);
     static Handle open_w(const CanonicalPath&);
 
+    static void remove(const std::string&);
+    static void remove(const CanonicalPath&);
+
     using Handle::close;
 
     using Handle::read;

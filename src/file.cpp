@@ -69,6 +69,14 @@ Handle open_file(const std::wstring& path, const CreateFileParams& params) {
     return Handle{handle};
 }
 
+void remove_file(const std::wstring& path) {
+    const auto ret = ::DeleteFileW(path.c_str());
+
+    if (!ret) {
+        throw error::windows(GetLastError(), "DeleteFileW");
+    }
+}
+
 } // namespace
 
 Handle File::open_r(const std::string& path) {
@@ -85,6 +93,14 @@ Handle File::open_w(const std::string& path) {
 
 Handle File::open_w(const CanonicalPath& path) {
     return open_file(to_system_path(path), CreateFileParams::write());
+}
+
+void File::remove(const std::string& path) {
+    remove_file(to_system_path(path));
+}
+
+void File::remove(const CanonicalPath& path) {
+    remove_file(to_system_path(path));
 }
 
 } // namespace winapi

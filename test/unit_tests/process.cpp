@@ -3,6 +3,8 @@
 // For details, see https://github.com/egor-tensin/winapi-common.
 // Distributed under the MIT License.
 
+#include "fixtures.hpp"
+
 #include <winapi/cmd_line.hpp>
 #include <winapi/file.hpp>
 #include <winapi/path.hpp>
@@ -12,42 +14,10 @@
 
 #include <boost/test/unit_test.hpp>
 
-#include <stdexcept>
-#include <string>
 #include <utility>
 
 using namespace winapi;
 using namespace winapi::process;
-
-namespace {
-
-class WithEchoExe {
-public:
-    WithEchoExe() : m_echo_exe(find_echo_exe()) {}
-
-    const std::string& get_echo_exe() { return m_echo_exe; }
-
-private:
-    static std::string find_echo_exe() {
-        static const std::string prefix{"--echo_exe="};
-        return find_param_value(prefix);
-    }
-
-    static std::string find_param_value(const std::string& param_prefix) {
-        const auto cmd_line = CommandLine::query();
-        const auto& args = cmd_line.get_args();
-        for (const auto& arg : args) {
-            if (arg.rfind(param_prefix, 0) == 0) {
-                return arg.substr(param_prefix.length());
-            }
-        }
-        throw std::runtime_error{"couldn't find parameter " + param_prefix};
-    }
-
-    const std::string m_echo_exe;
-};
-
-} // namespace
 
 BOOST_AUTO_TEST_SUITE(process_tests)
 
@@ -81,11 +51,13 @@ BOOST_FIXTURE_TEST_CASE(echo_stdout_to_pipe, WithEchoExe) {
 BOOST_FIXTURE_TEST_CASE(echo_stdout_to_file, WithEchoExe) {
     const CommandLine cmd_line{get_echo_exe(), {"XXX", "YYY", "ZZZ"}};
     Process::IO io;
-    io.std_out = Stdout{CanonicalPath{"test.txt"}};
+    const CanonicalPath stdout_path{"test.txt"};
+    const RemoveFileGuard remove_stdout_file{stdout_path};
+    io.std_out = Stdout{stdout_path};
     const auto process = Process::create(cmd_line, std::move(io));
     process.wait();
     BOOST_TEST(process.get_exit_code() == 0);
-    const auto output = File::open_r(CanonicalPath{"test.txt"}).read();
+    const auto output = File::open_r(stdout_path).read();
     const auto utf8 = narrow(output);
     BOOST_TEST(utf8 == "XXX\r\nYYY\r\nZZZ\r\n");
 }
