@@ -12,10 +12,16 @@
 BOOST_AUTO_TEST_SUITE(handle_tests)
 
 BOOST_AUTO_TEST_CASE(null) {
-    { winapi::Handle h{NULL}; }
-    BOOST_TEST(true, "NULL handle closed successfully");
-    { winapi::Handle h{INVALID_HANDLE_VALUE}; }
-    BOOST_TEST(true, "INVALID_HANDLE_VALUE handle closed successfully");
+    {
+        winapi::Handle h{NULL};
+        h.close();
+        BOOST_TEST(true, "NULL handle closed successfully");
+    }
+    {
+        winapi::Handle h{INVALID_HANDLE_VALUE};
+        h.close();
+        BOOST_TEST(true, "INVALID_HANDLE_VALUE handle closed successfully");
+    }
 }
 
 BOOST_AUTO_TEST_SUITE_END()
