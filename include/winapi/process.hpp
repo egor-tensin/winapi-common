@@ -7,10 +7,14 @@
 
 #include "cmd_line.hpp"
 #include "handle.hpp"
+#include "resource.hpp"
 #include "stream.hpp"
 
 #include <boost/config.hpp>
 
+#include <windows.h>
+
+#include <string>
 #include <utility>
 
 namespace winapi {
@@ -52,8 +56,13 @@ public:
 
     int get_exit_code() const;
 
+    static Resource get_resource(unsigned int id);
+    static std::string get_resource_string(unsigned int id);
+
 private:
     explicit Process(Handle&& handle) : m_handle{std::move(handle)} {}
+
+    static HMODULE get_exe_module();
 
     Handle m_handle;
 };

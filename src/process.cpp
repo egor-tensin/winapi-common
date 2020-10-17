@@ -6,14 +6,18 @@
 #include <winapi/cmd_line.hpp>
 #include <winapi/error.hpp>
 #include <winapi/process.hpp>
+#include <winapi/resource.hpp>
 #include <winapi/utf8.hpp>
 
 #include <boost/config.hpp>
 
 #include <windows.h>
 
+#include <cstddef>
 #include <cstring>
+#include <sstream>
 #include <stdexcept>
+#include <string>
 #include <utility>
 #include <vector>
 
@@ -108,6 +112,54 @@ int Process::get_exit_code() const {
     }
 
     return static_cast<int>(ec);
+}
+
+HMODULE Process::get_exe_module() {
+    const auto module = ::GetModuleHandleW(NULL);
+    if (module == NULL) {
+        throw error::windows(GetLastError(), "GetModuleHandleW");
+    }
+    return module;
+}
+
+std::string Process::get_resource_string(unsigned int id) {
+    wchar_t* s = nullptr;
+
+    const auto nch = ::LoadStringW(get_exe_module(), id, reinterpret_cast<wchar_t*>(&s), 0);
+
+    if (nch <= 0) {
+        throw error::windows(GetLastError(), "LoadStringW");
+    }
+
+    return narrow(s, nch * sizeof(wchar_t));
+}
+
+Resource Process::get_resource(unsigned int id) {
+    const auto module = get_exe_module();
+
+    const auto src = ::FindResourceA(module, MAKEINTRESOURCEA(id), RT_RCDATA);
+
+    if (src == NULL) {
+        throw error::windows(GetLastError(), "FindResourceA");
+    }
+
+    const auto resource = ::LoadResource(module, src);
+
+    if (resource == NULL) {
+        throw error::windows(GetLastError(), "LoadResource");
+    }
+
+    const auto data = ::LockResource(resource);
+
+    if (data == NULL) {
+        std::ostringstream oss;
+        oss << "Couldn't get data pointer for resource with ID " << id;
+        throw std::runtime_error{oss.str()};
+    }
+
+    const auto nb = ::SizeofResource(module, src);
+
+    return {data, nb};
 }
 
 } // namespace winapi

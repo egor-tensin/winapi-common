@@ -1,0 +1,15 @@
+#include "resource_ids.h"
+
+#include <windows.h>
+
+STRINGTABLE
+{
+    IDS_TEST_STRING, "This is a test resource string!"
+    IDS_TEST_STRING_WIDE, L"This is another test string, wide this time."
+}
+
+// 0xdeadbeef, byte by byte
+ID_TEST_DATA RCDATA
+{
+    0xadde, 0xefbe
+}

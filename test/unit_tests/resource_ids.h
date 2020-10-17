@@ -1,0 +1,3 @@
+#define IDS_TEST_STRING 69
+#define IDS_TEST_STRING_WIDE 70
+#define ID_TEST_DATA 420

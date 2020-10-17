@@ -7,6 +7,7 @@
 
 #include <cstddef>
 #include <cstring>
+#include <initializer_list>
 #include <sstream>
 #include <stdexcept>
 #include <string>
@@ -21,6 +22,8 @@ public:
 
     Buffer() = default;
 
+    Buffer(std::initializer_list<unsigned char> lst) : Parent(lst) {}
+
     explicit Buffer(Parent&& src) : Parent(std::move(src)) {}
 
     template <typename CharT>
@@ -28,7 +31,7 @@ public:
         set(src);
     }
 
-    explicit Buffer(const void* src, std::size_t nb) { set(src, nb); }
+    Buffer(const void* src, std::size_t nb) { set(src, nb); }
 
     template <typename CharT>
     void set(const std::basic_string<CharT>& src) {
