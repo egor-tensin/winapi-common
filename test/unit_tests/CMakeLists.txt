@@ -1,5 +1,5 @@
-file(GLOB unit_tests_files "*.cpp" "*.h" "*.hpp" "*.rc")
-add_executable(unit_tests ${unit_tests_files})
+file(GLOB unit_tests_src "*.cpp" "*.h" "*.hpp" "*.rc")
+add_executable(unit_tests ${unit_tests_src})
 set_target_properties(unit_tests PROPERTIES OUTPUT_NAME winapi-common-unit-tests)
 
 target_link_libraries(unit_tests PRIVATE winapi_common winapi_utf8)
