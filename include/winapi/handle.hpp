@@ -13,6 +13,7 @@
 
 #include <cstddef>
 #include <memory>
+#include <string>
 #include <utility>
 
 namespace winapi {
@@ -45,6 +46,11 @@ public:
 
     void write(const void*, std::size_t nb) const;
     void write(const Buffer& buffer) const;
+
+    template <typename CharT>
+    void write(const std::basic_string<CharT>& src) const {
+        write(src.c_str(), src.size() * sizeof(CharT));
+    }
 
     void inherit(bool yes = true) const;
     void dont_inherit() const { inherit(false); }
