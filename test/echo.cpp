@@ -11,12 +11,25 @@
 // clang-format on
 
 #include <iostream>
+#include <string>
 
 int wmain(int argc, wchar_t* argv[]) {
+    _setmode(_fileno(stdin), _O_U16TEXT);
     _setmode(_fileno(stdout), _O_U16TEXT);
+    _setmode(_fileno(stderr), _O_U16TEXT);
 
-    for (int i = 1; i < argc; ++i) {
-        std::wcout << argv[i] << L'\n';
+    --argc;
+    ++argv;
+
+    if (argc > 0) {
+        for (int i = 0; i < argc; ++i) {
+            std::wcout << argv[i] << L'\n';
+        }
+    } else {
+        std::wstring line;
+        while (std::getline(std::wcin, line)) {
+            std::wcout << line << L'\n';
+        }
     }
     return 0;
 }
