@@ -6,6 +6,7 @@
 #include <winapi/cmd_line.hpp>
 #include <winapi/error.hpp>
 #include <winapi/utf8.hpp>
+#include <winapi/utils.hpp>
 
 #include <boost/algorithm/string.hpp>
 #include <boost/config.hpp>
@@ -33,10 +34,6 @@ std::vector<std::string> narrow_all(int argc, wchar_t** argv) {
         utf.emplace_back(narrow(argv[i]));
     return utf;
 }
-
-struct LocalDelete {
-    void operator()(wchar_t* argv[]) const { ::LocalFree(argv); }
-};
 
 CommandLine do_parse(std::wstring src) {
     boost::trim(src);

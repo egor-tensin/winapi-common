@@ -6,7 +6,7 @@
 #include <winapi/buffer.hpp>
 #include <winapi/error.hpp>
 #include <winapi/handle.hpp>
-#include <winapi/workarounds.hpp>
+#include <winapi/utils.hpp>
 
 #include <boost/config.hpp>
 
