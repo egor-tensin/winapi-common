@@ -6,6 +6,7 @@
 #include <winapi/cmd_line.hpp>
 #include <winapi/error.hpp>
 #include <winapi/process.hpp>
+#include <winapi/process_io.hpp>
 #include <winapi/resource.hpp>
 #include <winapi/utf8.hpp>
 
@@ -26,7 +27,7 @@ namespace {
 
 typedef std::vector<wchar_t> EscapedCommandLine;
 
-Handle create_process(EscapedCommandLine cmd_line, Process::IO& io) {
+Handle create_process(EscapedCommandLine cmd_line, process::IO& io) {
     BOOST_STATIC_CONSTEXPR DWORD flags = /*CREATE_NO_WINDOW | */ CREATE_UNICODE_ENVIRONMENT;
 
     STARTUPINFOW startup_info;
@@ -64,23 +65,17 @@ EscapedCommandLine escape_command_line(const CommandLine& cmd_line) {
     return buffer;
 }
 
-Handle create_process(const CommandLine& cmd_line, Process::IO& io) {
+Handle create_process(const CommandLine& cmd_line, process::IO& io) {
     return create_process(escape_command_line(cmd_line), io);
 }
 
 } // namespace
 
-void Process::IO::close() {
-    std_in.handle.close();
-    std_out.handle.close();
-    std_err.handle.close();
-}
-
 Process Process::create(const CommandLine& cmd_line) {
     return create(cmd_line, {});
 }
 
-Process Process::create(const CommandLine& cmd_line, IO io) {
+Process Process::create(const CommandLine& cmd_line, process::IO io) {
     return Process{create_process(cmd_line, io)};
 }
 

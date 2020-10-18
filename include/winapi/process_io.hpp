@@ -23,25 +23,13 @@ struct Stream {
     Handle handle;
 
     // VS 2013 won't generate these automatically.
-
-    Stream(Stream&& other) BOOST_NOEXCEPT_OR_NOTHROW { swap(other); }
-
-    Stream& operator=(Stream other) BOOST_NOEXCEPT_OR_NOTHROW {
-        swap(other);
-        return *this;
-    }
-
-    void swap(Stream& other) BOOST_NOEXCEPT_OR_NOTHROW {
-        using std::swap;
-        swap(handle, other.handle);
-    }
-
+    Stream(Stream&& other) BOOST_NOEXCEPT_OR_NOTHROW;
+    Stream& operator=(Stream other) BOOST_NOEXCEPT_OR_NOTHROW;
+    void swap(Stream& other) BOOST_NOEXCEPT_OR_NOTHROW;
     Stream(const Stream&) = delete;
 };
 
-inline void swap(Stream& a, Stream& b) BOOST_NOEXCEPT_OR_NOTHROW {
-    a.swap(b);
-}
+void swap(Stream& a, Stream& b) BOOST_NOEXCEPT_OR_NOTHROW;
 
 struct Stdin : Stream {
     Stdin();
@@ -50,14 +38,8 @@ struct Stdin : Stream {
     explicit Stdin(Pipe&);
 
     // VS 2013 won't generate these automatically.
-
-    Stdin(Stdin&& other) BOOST_NOEXCEPT_OR_NOTHROW : Stream{std::move(other)} {}
-
-    Stdin& operator=(Stdin other) BOOST_NOEXCEPT_OR_NOTHROW {
-        Stream::operator=(std::move(other));
-        return *this;
-    }
-
+    Stdin(Stdin&& other) BOOST_NOEXCEPT_OR_NOTHROW;
+    Stdin& operator=(Stdin other) BOOST_NOEXCEPT_OR_NOTHROW;
     Stdin(const Stdin&) = delete;
 };
 
@@ -68,14 +50,8 @@ struct Stdout : Stream {
     explicit Stdout(Pipe&);
 
     // VS 2013 won't generate these automatically.
-
-    Stdout(Stdout&& other) BOOST_NOEXCEPT_OR_NOTHROW : Stream{std::move(other)} {}
-
-    Stdout& operator=(Stdout other) BOOST_NOEXCEPT_OR_NOTHROW {
-        Stream::operator=(std::move(other));
-        return *this;
-    }
-
+    Stdout(Stdout&& other) BOOST_NOEXCEPT_OR_NOTHROW;
+    Stdout& operator=(Stdout other) BOOST_NOEXCEPT_OR_NOTHROW;
     Stdout(const Stdout&) = delete;
 };
 
@@ -86,16 +62,28 @@ struct Stderr : Stream {
     explicit Stderr(Pipe&);
 
     // VS 2013 won't generate these automatically.
-
-    Stderr(Stderr&& other) BOOST_NOEXCEPT_OR_NOTHROW : Stream{std::move(other)} {}
-
-    Stderr& operator=(Stderr other) BOOST_NOEXCEPT_OR_NOTHROW {
-        Stream::operator=(std::move(other));
-        return *this;
-    }
-
+    Stderr(Stderr&& other) BOOST_NOEXCEPT_OR_NOTHROW;
+    Stderr& operator=(Stderr other) BOOST_NOEXCEPT_OR_NOTHROW;
     Stderr(const Stderr&) = delete;
 };
+
+struct IO {
+    IO() = default;
+
+    void close();
+
+    process::Stdin std_in;
+    process::Stdout std_out;
+    process::Stderr std_err;
+
+    // VS 2013 won't generate these automatically.
+    IO(IO&& other) BOOST_NOEXCEPT_OR_NOTHROW;
+    IO& operator=(IO other) BOOST_NOEXCEPT_OR_NOTHROW;
+    void swap(IO& other) BOOST_NOEXCEPT_OR_NOTHROW;
+    IO(const IO&) = delete;
+};
+
+void swap(IO& a, IO& b) BOOST_NOEXCEPT_OR_NOTHROW;
 
 } // namespace process
 } // namespace winapi
@@ -104,6 +92,11 @@ namespace std {
 
 template <>
 inline void swap(winapi::process::Stream& a, winapi::process::Stream& b) BOOST_NOEXCEPT_OR_NOTHROW {
+    a.swap(b);
+}
+
+template <>
+inline void swap(winapi::process::IO& a, winapi::process::IO& b) BOOST_NOEXCEPT_OR_NOTHROW {
     a.swap(b);
 }
 

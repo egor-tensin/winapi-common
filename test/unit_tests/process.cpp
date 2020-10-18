@@ -10,6 +10,7 @@
 #include <winapi/path.hpp>
 #include <winapi/pipe.hpp>
 #include <winapi/process.hpp>
+#include <winapi/process_io.hpp>
 #include <winapi/utf8.hpp>
 
 #include <boost/test/unit_test.hpp>
@@ -35,7 +36,7 @@ BOOST_FIXTURE_TEST_CASE(echo, WithEchoExe) {
 
 BOOST_FIXTURE_TEST_CASE(echo_stdout_to_pipe, WithEchoExe) {
     const CommandLine cmd_line{get_echo_exe(), {"aaa", "bbb", "ccc"}};
-    Process::IO io;
+    process::IO io;
     Pipe stdout_pipe;
     io.std_out = Stdout{stdout_pipe};
     const auto process = Process::create(cmd_line, std::move(io));
@@ -51,7 +52,7 @@ BOOST_FIXTURE_TEST_CASE(echo_stdout_to_file, WithEchoExe) {
     const RemoveFileGuard remove_stdout_file{stdout_path};
 
     const CommandLine cmd_line{get_echo_exe(), {"XXX", "YYY", "ZZZ"}};
-    Process::IO io;
+    process::IO io;
     io.std_out = Stdout{stdout_path};
     const auto process = Process::create(cmd_line, std::move(io));
     process.wait();
@@ -69,7 +70,7 @@ BOOST_FIXTURE_TEST_CASE(echo_stdin_from_file, WithEchoExe) {
     File::open_w(stdin_path).write(stdin16);
 
     const CommandLine cmd_line{get_echo_exe()};
-    Process::IO io;
+    process::IO io;
     Pipe stdout_pipe;
     io.std_in = Stdin{stdin_path};
     io.std_out = Stdout{stdout_pipe};
