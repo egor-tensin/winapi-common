@@ -52,7 +52,7 @@ Handle create_process(EscapedCommandLine cmd_line, Process::IO& io) {
     Handle process{child_info.hProcess};
     Handle thread{child_info.hThread};
 
-    return std::move(process);
+    return process;
 }
 
 EscapedCommandLine escape_command_line(const CommandLine& cmd_line) {
