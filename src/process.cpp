@@ -12,7 +12,10 @@
 
 #include <boost/config.hpp>
 
+// clang-format off
 #include <windows.h>
+#include <shellapi.h>
+// clang-format on
 
 #include <cstddef>
 #include <cstring>
@@ -69,6 +72,30 @@ Handle create_process(const CommandLine& cmd_line, process::IO& io) {
     return create_process(escape_command_line(cmd_line), io);
 }
 
+Handle shell_execute(const CommandLine& cmd_line) {
+    BOOST_STATIC_CONSTEXPR unsigned long flags =
+        SEE_MASK_NOCLOSEPROCESS | SEE_MASK_FLAG_NO_UI | SEE_MASK_NO_CONSOLE;
+
+    const auto exe_path = widen(cmd_line.get_argv0());
+    const auto args = widen(cmd_line.args_to_string());
+
+    SHELLEXECUTEINFOW info;
+    std::memset(&info, 0, sizeof(info));
+    info.cbSize = sizeof(info);
+    info.fMask = flags;
+    info.lpVerb = L"runas";
+    info.lpFile = exe_path.c_str();
+    if (!args.empty())
+        info.lpParameters = args.c_str();
+    info.nShow = SW_SHOWDEFAULT;
+
+    if (!::ShellExecuteExW(&info)) {
+        throw error::windows(GetLastError(), "ShellExecuteExW");
+    }
+
+    return Handle{info.hProcess};
+}
+
 } // namespace
 
 Process Process::create(const CommandLine& cmd_line) {
@@ -77,6 +104,10 @@ Process Process::create(const CommandLine& cmd_line) {
 
 Process Process::create(const CommandLine& cmd_line, process::IO io) {
     return Process{create_process(cmd_line, io)};
+}
+
+Process Process::runas(const CommandLine& cmd_line) {
+    return Process{shell_execute(cmd_line)};
 }
 
 void Process::wait() const {

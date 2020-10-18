@@ -24,6 +24,8 @@ public:
     static Process create(const CommandLine&);
     static Process create(const CommandLine&, process::IO);
 
+    static Process runas(const CommandLine&);
+
     void wait() const;
 
     int get_exit_code() const;

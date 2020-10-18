@@ -82,4 +82,11 @@ BOOST_FIXTURE_TEST_CASE(echo_stdin_from_file, WithEchoExe) {
     BOOST_TEST(stdout8 == stdin8);
 }
 
+BOOST_FIXTURE_TEST_CASE(echo_runas, WithEchoExe) {
+    const CommandLine cmd_line{get_echo_exe(), {"foo", "bar"}};
+    const auto process = Process::runas(cmd_line);
+    process.wait();
+    BOOST_TEST(process.get_exit_code() == 0);
+}
+
 BOOST_AUTO_TEST_SUITE_END()
