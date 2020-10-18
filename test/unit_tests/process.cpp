@@ -21,6 +21,11 @@ using namespace winapi::process;
 
 BOOST_AUTO_TEST_SUITE(process_tests)
 
+BOOST_AUTO_TEST_CASE(get_exe_path) {
+    const auto path = Process::get_exe_path();
+    BOOST_TEST_MESSAGE("Executable path: " << path);
+}
+
 BOOST_FIXTURE_TEST_CASE(echo, WithEchoExe) {
     const CommandLine cmd_line{get_echo_exe(), {"1", "2", "3"}};
     const auto process = Process::create(cmd_line);

@@ -122,6 +122,32 @@ HMODULE Process::get_exe_module() {
     return module;
 }
 
+std::string Process::get_exe_path() {
+    BOOST_STATIC_CONSTEXPR std::size_t init_buffer_size = MAX_PATH;
+    static_assert(init_buffer_size > 0, "init_buffer_size must be positive");
+
+    std::vector<wchar_t> buffer;
+    buffer.resize(init_buffer_size);
+
+    while (true) {
+        SetLastError(ERROR_SUCCESS);
+
+        const auto nch = ::GetModuleFileNameW(NULL, buffer.data(), buffer.size());
+
+        if (nch == 0) {
+            throw error::windows(GetLastError(), "GetModuleFileNameW");
+        }
+
+        if (nch == buffer.size() && GetLastError() == ERROR_INSUFFICIENT_BUFFER) {
+            buffer.resize(2 * buffer.size());
+            continue;
+        }
+
+        buffer.resize(nch);
+        return narrow(buffer);
+    }
+}
+
 std::string Process::get_resource_string(unsigned int id) {
     wchar_t* s = nullptr;
 

@@ -56,6 +56,8 @@ public:
 
     int get_exit_code() const;
 
+    static std::string get_exe_path();
+
     static Resource get_resource(unsigned int id);
     static std::string get_resource_string(unsigned int id);
 
