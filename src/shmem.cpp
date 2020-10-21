@@ -46,26 +46,26 @@ SharedMemory SharedMemory::create(const std::string& name, std::size_t nb) {
     const auto nb_low = static_cast<DWORD>(nb64);
     const auto nb_high = static_cast<DWORD>(nb64 >> 32);
 
-    const auto h_mapping = ::CreateFileMappingW(
+    const auto mapping_impl = ::CreateFileMappingW(
         INVALID_HANDLE_VALUE, NULL, PAGE_READWRITE, nb_high, nb_low, widen(name).c_str());
 
-    if (h_mapping == NULL) {
+    if (mapping_impl == NULL) {
         throw error::windows(GetLastError(), "CreateFileMappingW");
     }
 
-    Handle mapping{h_mapping};
+    Handle mapping{mapping_impl};
     const auto addr = do_map(mapping);
     return {std::move(mapping), addr};
 }
 
 SharedMemory SharedMemory::open(const std::string& name) {
-    const auto h_mapping = ::OpenFileMappingW(FILE_MAP_ALL_ACCESS, FALSE, widen(name).c_str());
+    const auto mapping_impl = ::OpenFileMappingW(FILE_MAP_ALL_ACCESS, FALSE, widen(name).c_str());
 
-    if (h_mapping == NULL) {
+    if (mapping_impl == NULL) {
         throw error::windows(GetLastError(), "OpenFileMappingW");
     }
 
-    Handle mapping{h_mapping};
+    Handle mapping{mapping_impl};
     const auto addr = do_map(mapping);
     return {std::move(mapping), addr};
 }

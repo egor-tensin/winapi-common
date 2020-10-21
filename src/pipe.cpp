@@ -17,8 +17,8 @@ namespace winapi {
 namespace {
 
 void create_pipe(Handle& read_end, Handle& write_end) {
-    HANDLE h_read_end = INVALID_HANDLE_VALUE;
-    HANDLE h_write_end = INVALID_HANDLE_VALUE;
+    HANDLE read_end_impl = INVALID_HANDLE_VALUE;
+    HANDLE write_end_impl = INVALID_HANDLE_VALUE;
 
     SECURITY_ATTRIBUTES attributes;
     std::memset(&attributes, 0, sizeof(attributes));
@@ -27,14 +27,14 @@ void create_pipe(Handle& read_end, Handle& write_end) {
 
     BOOST_STATIC_CONSTEXPR DWORD buffer_size = 16 * 1024;
 
-    const auto ret = ::CreatePipe(&h_read_end, &h_write_end, &attributes, buffer_size);
+    const auto ret = ::CreatePipe(&read_end_impl, &write_end_impl, &attributes, buffer_size);
 
     if (!ret) {
         throw error::windows(GetLastError(), "CreatePipe");
     }
 
-    read_end = Handle{h_read_end};
-    write_end = Handle{h_write_end};
+    read_end = Handle{read_end_impl};
+    write_end = Handle{write_end_impl};
 }
 
 } // namespace
