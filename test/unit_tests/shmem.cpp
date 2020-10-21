@@ -30,21 +30,21 @@ struct DataStruct {
 
 void setter1_main() {
     const auto data_struct = SharedObject<DataStruct>::open(shmem_name);
-    std::unique_lock<std::mutex> lck{data_struct->mtx};
-    BOOST_TEST_MESSAGE(data_struct.ptr());
-
-    data_struct->cv.wait(lck, [&]() { return data_struct->data == main_data; });
-    data_struct->data = setter1_data;
+    {
+        std::unique_lock<std::mutex> lck{data_struct->mtx};
+        data_struct->cv.wait(lck, [&]() { return data_struct->data == main_data; });
+        data_struct->data = setter1_data;
+    }
     data_struct->cv.notify_all();
 }
 
 void setter2_main() {
     auto data_struct = SharedObject<DataStruct>::open(shmem_name);
-    std::unique_lock<std::mutex> lck{data_struct->mtx};
-    BOOST_TEST_MESSAGE(data_struct.ptr());
-
-    data_struct->cv.wait(lck, [&]() { return data_struct->data == setter1_data; });
-    data_struct->data = setter2_data;
+    {
+        std::unique_lock<std::mutex> lck{data_struct->mtx};
+        data_struct->cv.wait(lck, [&]() { return data_struct->data == setter1_data; });
+        data_struct->data = setter2_data;
+    }
     data_struct->cv.notify_all();
 }
 
