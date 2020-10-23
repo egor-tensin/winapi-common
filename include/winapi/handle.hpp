@@ -28,7 +28,10 @@ public:
 
     void swap(Handle& other) BOOST_NOEXCEPT_OR_NOTHROW;
 
-    explicit operator HANDLE() const { return m_impl.get(); }
+    HANDLE get() const { return m_impl.get(); }
+    HANDLE ptr() const { return get(); }
+
+    explicit operator HANDLE() const { return ptr(); }
 
     bool is_invalid() const;
     static bool is_invalid(HANDLE);
