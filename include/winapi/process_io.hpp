@@ -72,9 +72,9 @@ struct IO {
 
     void close();
 
-    process::Stdin std_in;
-    process::Stdout std_out;
-    process::Stderr std_err;
+    Stdin std_in;
+    Stdout std_out;
+    Stderr std_err;
 
     // VS 2013 won't generate these automatically.
     IO(IO&& other) BOOST_NOEXCEPT_OR_NOTHROW;
