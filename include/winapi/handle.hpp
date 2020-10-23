@@ -31,6 +31,7 @@ public:
     explicit operator HANDLE() const { return m_impl.get(); }
 
     bool is_invalid() const;
+    static bool is_invalid(HANDLE);
 
     void close();
 

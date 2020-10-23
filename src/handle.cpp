@@ -27,10 +27,6 @@ std::runtime_error write_file_incomplete(std::size_t expected, std::size_t actua
     return std::runtime_error{oss.str()};
 }
 
-bool is_invalid_handle(HANDLE handle) {
-    return handle == NULL || handle == INVALID_HANDLE_VALUE;
-}
-
 bool is_std_handle(HANDLE handle) {
     return handle == ::GetStdHandle(STD_INPUT_HANDLE) ||
            handle == ::GetStdHandle(STD_OUTPUT_HANDLE) ||
@@ -56,7 +52,11 @@ void Handle::swap(Handle& other) BOOST_NOEXCEPT_OR_NOTHROW {
 }
 
 bool Handle::is_invalid() const {
-    return !m_impl || is_invalid_handle(m_impl.get());
+    return !m_impl || is_invalid(m_impl.get());
+}
+
+bool Handle::is_invalid(HANDLE handle) {
+    return handle == NULL || handle == INVALID_HANDLE_VALUE;
 }
 
 void Handle::close() {
@@ -143,7 +143,7 @@ void Handle::inherit(bool yes) const {
 }
 
 void Handle::Close::operator()(HANDLE impl) const {
-    if (is_invalid_handle(impl) || is_std_handle(impl))
+    if (is_invalid(impl) || is_std_handle(impl))
         return;
     const auto ret = ::CloseHandle(impl);
     assert(ret);
