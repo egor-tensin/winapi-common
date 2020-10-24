@@ -1,5 +1,7 @@
+file(GLOB shared_src "shared/*.hpp")
+
 file(GLOB unit_tests_src "*.cpp" "*.h" "*.hpp" "*.rc")
-add_executable(unit_tests ${unit_tests_src})
+add_executable(unit_tests ${unit_tests_src} ${shared_src})
 set_target_properties(unit_tests PROPERTIES OUTPUT_NAME winapi-common-unit-tests)
 
 target_link_libraries(unit_tests PRIVATE winapi_common winapi_utf8)
@@ -10,4 +12,18 @@ target_link_libraries(unit_tests PRIVATE Boost::disable_autolinking Boost::unit_
 install(TARGETS unit_tests RUNTIME DESTINATION bin)
 if(CMAKE_CXX_COMPILER_ID STREQUAL "MSVC")
     install(FILES "$<TARGET_PDB_FILE:unit_tests>" DESTINATION bin OPTIONAL)
+endif()
+
+file(GLOB worker_src "worker/*.cpp")
+add_executable(worker ${worker_src} ${shared_src})
+set_target_properties(worker PROPERTIES OUTPUT_NAME winapi-common-test-worker)
+
+target_link_libraries(worker PRIVATE winapi_common winapi_utf8)
+
+find_package(Boost REQUIRED)
+target_link_libraries(worker PRIVATE Boost::disable_autolinking Boost::boost)
+
+install(TARGETS worker RUNTIME DESTINATION bin)
+if(CMAKE_CXX_COMPILER_ID STREQUAL "MSVC")
+    install(FILES "$<TARGET_PDB_FILE:worker>" DESTINATION bin OPTIONAL)
 endif()

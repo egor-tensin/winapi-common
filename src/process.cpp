@@ -30,35 +30,6 @@ namespace {
 
 typedef std::vector<wchar_t> EscapedCommandLine;
 
-Handle create_process(EscapedCommandLine cmd_line, process::IO& io) {
-    BOOST_STATIC_CONSTEXPR DWORD flags = /*CREATE_NO_WINDOW | */ CREATE_UNICODE_ENVIRONMENT;
-
-    STARTUPINFOW startup_info;
-    std::memset(&startup_info, 0, sizeof(startup_info));
-    startup_info.cb = sizeof(startup_info);
-    startup_info.dwFlags = STARTF_USESTDHANDLES;
-    startup_info.hStdInput = static_cast<HANDLE>(io.std_in.handle);
-    startup_info.hStdOutput = static_cast<HANDLE>(io.std_out.handle);
-    startup_info.hStdError = static_cast<HANDLE>(io.std_err.handle);
-
-    PROCESS_INFORMATION child_info;
-    std::memset(&child_info, 0, sizeof(child_info));
-
-    const auto ret = ::CreateProcessW(
-        NULL, cmd_line.data(), NULL, NULL, TRUE, flags, NULL, NULL, &startup_info, &child_info);
-
-    if (!ret) {
-        throw error::windows(GetLastError(), "CreateProcessW");
-    }
-
-    io.close();
-
-    Handle process{child_info.hProcess};
-    Handle thread{child_info.hThread};
-
-    return process;
-}
-
 EscapedCommandLine escape_command_line(const CommandLine& cmd_line) {
     const auto unicode_cmd_line = widen(cmd_line.to_string());
     EscapedCommandLine buffer;
@@ -68,26 +39,117 @@ EscapedCommandLine escape_command_line(const CommandLine& cmd_line) {
     return buffer;
 }
 
-Handle create_process(const CommandLine& cmd_line, process::IO& io) {
-    return create_process(escape_command_line(cmd_line), io);
+Handle create_process(ProcessParameters& params) {
+    /*
+     * When creating a new console process, the options are:
+     * 1) inherit the parent console (the default),
+     * 2) CREATE_NO_WINDOW,
+     * 3) CREATE_NEW_CONSOLE,
+     * 4) DETACHED_PROCESS.
+     *
+     * Child processes can inherit the console.
+     * By that I mean they will display their output in the same window.
+     * If both the child process and the parent process read from stdin, there
+     * is no way to say which process will read any given input byte.
+     *
+     * There's an excellent guide into all the intricacies of the CreateProcess
+     * system call at
+     *
+     *     https://github.com/rprichard/win32-console-docs/blob/master/README.md
+     *
+     * Another useful link is https://ikriv.com/dev/cpp/ConsoleProxy/flags.
+     */
+    BOOST_STATIC_CONSTEXPR DWORD default_dwCreationFlags = CREATE_UNICODE_ENVIRONMENT;
+
+    STARTUPINFOW startup_info;
+    std::memset(&startup_info, 0, sizeof(startup_info));
+    startup_info.cb = sizeof(startup_info);
+
+    if (params.io) {
+        startup_info.dwFlags |= STARTF_USESTDHANDLES;
+        startup_info.hStdInput = static_cast<HANDLE>(params.io->std_in.handle);
+        startup_info.hStdOutput = static_cast<HANDLE>(params.io->std_out.handle);
+        startup_info.hStdError = static_cast<HANDLE>(params.io->std_err.handle);
+    }
+
+    auto dwCreationFlags = default_dwCreationFlags;
+
+    switch (params.console_mode) {
+        case ProcessParameters::ConsoleNone:
+            dwCreationFlags |= CREATE_NO_WINDOW;
+            break;
+        case ProcessParameters::ConsoleInherit:
+            // This is the default.
+            break;
+        case ProcessParameters::ConsoleNew:
+            dwCreationFlags |= CREATE_NEW_CONSOLE;
+            break;
+    }
+
+    PROCESS_INFORMATION child_info;
+    std::memset(&child_info, 0, sizeof(child_info));
+
+    {
+        auto cmd_line = escape_command_line(params.cmd_line);
+
+        const auto ret = ::CreateProcessW(NULL,
+                                          cmd_line.data(),
+                                          NULL,
+                                          NULL,
+                                          TRUE,
+                                          dwCreationFlags,
+                                          NULL,
+                                          NULL,
+                                          &startup_info,
+                                          &child_info);
+
+        if (!ret) {
+            throw error::windows(GetLastError(), "CreateProcessW");
+        }
+    }
+
+    if (params.io) {
+        params.io->close();
+    }
+
+    Handle process{child_info.hProcess};
+    Handle thread{child_info.hThread};
+
+    return process;
 }
 
-Handle shell_execute(const CommandLine& cmd_line) {
-    BOOST_STATIC_CONSTEXPR unsigned long flags =
-        SEE_MASK_NOCLOSEPROCESS | SEE_MASK_FLAG_NO_UI | SEE_MASK_NO_CONSOLE;
+Handle shell_execute(const ShellParameters& params) {
+    const auto lpVerb = params.verb ? widen(*params.verb) : L"open";
+    const auto lpFile = widen(params.cmd_line.get_argv0());
+    const auto lpParameters = widen(params.cmd_line.args_to_string());
 
-    const auto exe_path = widen(cmd_line.get_argv0());
-    const auto args = widen(cmd_line.args_to_string());
+    BOOST_STATIC_CONSTEXPR unsigned long default_fMask =
+        SEE_MASK_NOCLOSEPROCESS | SEE_MASK_FLAG_NO_UI;
+
+    auto fMask = default_fMask;
+    auto nShow = SW_SHOWDEFAULT;
+
+    switch (params.console_mode) {
+        case ProcessParameters::ConsoleNone:
+            nShow = SW_HIDE;
+            break;
+        case ProcessParameters::ConsoleInherit:
+            fMask |= SEE_MASK_NO_CONSOLE;
+            break;
+        case ProcessParameters::ConsoleNew:
+            // This is the default.
+            break;
+    }
 
     SHELLEXECUTEINFOW info;
     std::memset(&info, 0, sizeof(info));
     info.cbSize = sizeof(info);
-    info.fMask = flags;
-    info.lpVerb = L"runas";
-    info.lpFile = exe_path.c_str();
-    if (!args.empty())
-        info.lpParameters = args.c_str();
-    info.nShow = SW_SHOWDEFAULT;
+    info.fMask = fMask;
+    info.lpVerb = lpVerb.c_str();
+    info.lpFile = lpFile.c_str();
+    if (!lpParameters.empty())
+        info.lpParameters = lpParameters.c_str();
+    info.nShow = nShow;
 
     if (!::ShellExecuteExW(&info)) {
         throw error::windows(GetLastError(), "ShellExecuteExW");
@@ -98,16 +160,28 @@ Handle shell_execute(const CommandLine& cmd_line) {
 
 } // namespace
 
+Process Process::create(ProcessParameters params) {
+    return Process{create_process(params)};
+}
+
 Process Process::create(const CommandLine& cmd_line) {
-    return create(cmd_line, {});
+    ProcessParameters params{cmd_line};
+    return create(std::move(params));
 }
 
 Process Process::create(const CommandLine& cmd_line, process::IO io) {
-    return Process{create_process(cmd_line, io)};
+    ProcessParameters params{cmd_line};
+    params.io = std::move(io);
+    return create(std::move(params));
 }
 
-Process Process::runas(const CommandLine& cmd_line) {
-    return Process{shell_execute(cmd_line)};
+Process Process::shell(const ShellParameters& params) {
+    return Process{shell_execute(params)};
+}
+
+Process Process::shell(const CommandLine& cmd_line) {
+    ShellParameters params{cmd_line};
+    return shell(params);
 }
 
 bool Process::is_running() const {

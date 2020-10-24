@@ -11,6 +11,7 @@
 #include "resource.hpp"
 
 #include <boost/config.hpp>
+#include <boost/optional.hpp>
 
 #include <windows.h>
 
@@ -19,12 +20,40 @@
 
 namespace winapi {
 
+struct ProcessParameters {
+    enum ConsoleCreationMode {
+        ConsoleNone,
+        ConsoleInherit,
+        ConsoleNew,
+    };
+
+    explicit ProcessParameters(const CommandLine& cmd_line) : cmd_line{cmd_line} {}
+
+    CommandLine cmd_line;
+    boost::optional<process::IO> io;
+    ConsoleCreationMode console_mode = ConsoleNew;
+};
+
+struct ShellParameters : ProcessParameters {
+    explicit ShellParameters(const CommandLine& cmd_line) : ProcessParameters{cmd_line} {}
+
+    static ShellParameters runas(const CommandLine& cmd_line) {
+        ShellParameters params{cmd_line};
+        params.verb = "runas";
+        return params;
+    }
+
+    boost::optional<std::string> verb;
+};
+
 class Process {
 public:
+    static Process create(ProcessParameters);
     static Process create(const CommandLine&);
     static Process create(const CommandLine&, process::IO);
 
-    static Process runas(const CommandLine&);
+    static Process shell(const ShellParameters&);
+    static Process shell(const CommandLine&);
 
     bool is_running() const;
     void wait() const;

@@ -5,6 +5,8 @@
 
 #pragma once
 
+#include "shared/command.hpp"
+
 #include <winapi/cmd_line.hpp>
 #include <winapi/file.hpp>
 #include <winapi/path.hpp>
@@ -34,18 +36,13 @@ private:
     RemoveFileGuard& operator=(const RemoveFileGuard&) = delete;
 };
 
-class WithEchoExe {
+class WithParam {
 public:
-    WithEchoExe() : m_echo_exe(find_echo_exe()) {}
+    WithParam(const std::string& param_prefix) : m_value(find_param_value(param_prefix)) {}
 
-    const std::string& get_echo_exe() { return m_echo_exe; }
+    const std::string& get_value() { return m_value; }
 
 private:
-    static std::string find_echo_exe() {
-        static const std::string prefix{"--echo_exe="};
-        return find_param_value(prefix);
-    }
-
     static std::string find_param_value(const std::string& param_prefix) {
         const auto cmd_line = winapi::CommandLine::query();
         const auto& args = cmd_line.get_args();
@@ -57,5 +54,21 @@ private:
         throw std::runtime_error{"couldn't find parameter " + param_prefix};
     }
 
-    std::string m_echo_exe;
+    std::string m_value;
+};
+
+class WithEchoExe : public WithParam {
+public:
+    WithEchoExe() : WithParam{"--echo_exe="} {}
+
+    const std::string& get_echo_exe() { return get_value(); }
+};
+
+class WithWorkerExe : public WithParam {
+public:
+    WithWorkerExe() : WithParam{"--worker_exe="}, m_cmd{worker::Command::create()} {}
+
+    const std::string& get_worker_exe() { return get_value(); }
+
+    worker::Command::Shared m_cmd;
 };

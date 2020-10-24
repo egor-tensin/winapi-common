@@ -86,7 +86,8 @@ BOOST_FIXTURE_TEST_CASE(echo_stdin_from_file, WithEchoExe) {
 
 BOOST_FIXTURE_TEST_CASE(echo_runas, WithEchoExe) {
     const CommandLine cmd_line{get_echo_exe(), {"foo", "bar"}};
-    const auto process = Process::runas(cmd_line);
+    const auto params = ShellParameters::runas(cmd_line);
+    const auto process = Process::shell(params);
     process.wait();
     BOOST_TEST(process.get_exit_code() == 0);
 }
