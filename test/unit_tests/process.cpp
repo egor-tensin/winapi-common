@@ -15,6 +15,8 @@
 
 #include <boost/test/unit_test.hpp>
 
+#include <chrono>
+#include <thread>
 #include <utility>
 
 using namespace winapi;
@@ -87,6 +89,21 @@ BOOST_FIXTURE_TEST_CASE(echo_runas, WithEchoExe) {
     const auto process = Process::runas(cmd_line);
     process.wait();
     BOOST_TEST(process.get_exit_code() == 0);
+}
+
+BOOST_FIXTURE_TEST_CASE(echo_terminate, WithEchoExe) {
+    const CommandLine cmd_line{get_echo_exe()};
+    const auto process = Process::create(cmd_line);
+
+    // echo.exe is stuck trying to read stdin.
+    BOOST_TEST(process.is_running());
+    std::this_thread::sleep_for(std::chrono::seconds{3});
+    BOOST_TEST(process.is_running());
+
+    process.shut_down(123);
+
+    BOOST_TEST(!process.is_running());
+    BOOST_TEST(process.get_exit_code() == 123);
 }
 
 BOOST_AUTO_TEST_SUITE_END()

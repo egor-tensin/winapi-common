@@ -110,6 +110,22 @@ Process Process::runas(const CommandLine& cmd_line) {
     return Process{shell_execute(cmd_line)};
 }
 
+bool Process::is_running() const {
+    const auto ret = ::WaitForSingleObject(static_cast<HANDLE>(m_handle), 0);
+
+    switch (ret) {
+        case WAIT_OBJECT_0:
+            return false;
+        case WAIT_TIMEOUT:
+            return true;
+        case WAIT_FAILED:
+            throw error::windows(GetLastError(), "WaitForSingleObject");
+        default:
+            // Shouldn't happen.
+            throw error::custom(ret, "WaitForSingleObject");
+    }
+}
+
 void Process::wait() const {
     const auto ret = ::WaitForSingleObject(static_cast<HANDLE>(m_handle), INFINITE);
 
@@ -122,6 +138,17 @@ void Process::wait() const {
             // Shouldn't happen.
             throw error::custom(ret, "WaitForSingleObject");
     }
+}
+
+void Process::terminate(int ec) const {
+    if (!::TerminateProcess(static_cast<HANDLE>(m_handle), static_cast<UINT>(ec))) {
+        throw error::windows(GetLastError(), "TerminateProcess");
+    }
+}
+
+void Process::shut_down(int ec) const {
+    terminate(ec);
+    wait();
 }
 
 int Process::get_exit_code() const {

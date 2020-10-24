@@ -26,8 +26,10 @@ public:
 
     static Process runas(const CommandLine&);
 
+    bool is_running() const;
     void wait() const;
-
+    void terminate(int ec = 0) const;
+    void shut_down(int ec = 0) const;
     int get_exit_code() const;
 
     static std::string get_exe_path();
