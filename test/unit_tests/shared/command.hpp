@@ -94,8 +94,10 @@ public:
     }
 
     void get_result(Action action, const ReadResult& read_result) {
-        return get_result(
-            action, [](Args&) {}, read_result);
+        // clang-format off
+        // lmao, why would you want to place the arguments on the next line?
+        return get_result(action, [](Args&) {}, read_result);
+        // clang-format on
     }
 
     void get_result(Action action) {
