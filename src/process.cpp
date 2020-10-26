@@ -160,6 +160,64 @@ Handle shell_execute(const ShellParameters& params) {
 
 } // namespace
 
+ProcessParameters::ProcessParameters(ProcessParameters&& other) BOOST_NOEXCEPT_OR_NOTHROW
+    : cmd_line{std::move(other.cmd_line)},
+      io{std::move(other.io)},
+      console_mode{std::move(other.console_mode)} {}
+
+ProcessParameters& ProcessParameters::operator=(ProcessParameters other) BOOST_NOEXCEPT_OR_NOTHROW {
+    swap(other);
+    return *this;
+}
+
+void ProcessParameters::swap(ProcessParameters& other) BOOST_NOEXCEPT_OR_NOTHROW {
+    using std::swap;
+    swap(cmd_line, other.cmd_line);
+    swap(io, other.io);
+    swap(console_mode, other.console_mode);
+}
+
+void swap(ProcessParameters& a, ProcessParameters& b) BOOST_NOEXCEPT_OR_NOTHROW {
+    a.swap(b);
+}
+
+ShellParameters::ShellParameters(ShellParameters&& other) BOOST_NOEXCEPT_OR_NOTHROW
+    : ProcessParameters{std::move(other)},
+      verb{std::move(verb)} {}
+
+ShellParameters& ShellParameters::operator=(ShellParameters other) BOOST_NOEXCEPT_OR_NOTHROW {
+    swap(other);
+    return *this;
+}
+
+void ShellParameters::swap(ShellParameters& other) BOOST_NOEXCEPT_OR_NOTHROW {
+    using std::swap;
+    ProcessParameters::swap(other);
+    swap(verb, other.verb);
+}
+
+void swap(ShellParameters& a, ShellParameters& b) BOOST_NOEXCEPT_OR_NOTHROW {
+    a.swap(b);
+}
+
+Process::Process(Process&& other) BOOST_NOEXCEPT_OR_NOTHROW {
+    swap(other);
+}
+
+Process& Process::operator=(Process other) BOOST_NOEXCEPT_OR_NOTHROW {
+    swap(other);
+    return *this;
+}
+
+void Process::swap(Process& other) BOOST_NOEXCEPT_OR_NOTHROW {
+    using std::swap;
+    swap(m_handle, other.m_handle);
+}
+
+void swap(Process& a, Process& b) BOOST_NOEXCEPT_OR_NOTHROW {
+    a.swap(b);
+}
+
 Process Process::create(ProcessParameters params) {
     return Process{create_process(params)};
 }

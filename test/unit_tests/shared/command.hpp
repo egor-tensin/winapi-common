@@ -29,14 +29,14 @@ struct StdHandles {
     HANDLE err;
 };
 
+BOOST_STATIC_CONSTEXPR auto COMMAND_SHMEM_NAME = "shmem-test-cmd";
+
 class Command {
 public:
-    BOOST_STATIC_CONSTEXPR auto SHMEM_NAME = "shmem-test-cmd";
-
     typedef winapi::SharedObject<Command> Shared;
 
-    static Shared create() { return Shared::create(SHMEM_NAME); }
-    static Shared open() { return Shared::open(SHMEM_NAME); }
+    static Shared create() { return Shared::create(COMMAND_SHMEM_NAME); }
+    static Shared open() { return Shared::open(COMMAND_SHMEM_NAME); }
 
     typedef boost::interprocess::interprocess_mutex mutex;
     typedef boost::interprocess::interprocess_condition condition_variable;
