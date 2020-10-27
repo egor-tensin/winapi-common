@@ -59,14 +59,14 @@ private:
 
 class WithEchoExe : public WithParam {
 public:
-    WithEchoExe() : WithParam{"--echo_exe="} {}
+    WithEchoExe() : WithParam("--echo_exe=") {}
 
     const std::string& get_echo_exe() { return get_value(); }
 };
 
 class WithWorkerExe : public WithParam {
 public:
-    WithWorkerExe() : WithParam{"--worker_exe="}, m_cmd{worker::Command::create()} {}
+    WithWorkerExe() : WithParam("--worker_exe="), m_cmd(worker::Command::create()) {}
 
     const std::string& get_worker_exe() { return get_value(); }
 

@@ -15,8 +15,6 @@ namespace winapi {
 
 class File : private Handle {
 public:
-    explicit File(Handle&& handle) : Handle{std::move(handle)} {}
-
     static Handle open_r(const std::string&);
     static Handle open_r(const CanonicalPath&);
     static Handle open_w(const std::string&);
@@ -24,6 +22,8 @@ public:
 
     static void remove(const std::string&);
     static void remove(const CanonicalPath&);
+
+    explicit File(Handle&& handle) : Handle(std::move(handle)) {}
 
     using Handle::close;
 

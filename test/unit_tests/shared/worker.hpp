@@ -9,6 +9,8 @@
 
 #include <winapi/process.hpp>
 
+#include <boost/config.hpp>
+
 #include <windows.h>
 
 #include <exception>
@@ -20,7 +22,23 @@ namespace worker {
 
 class Worker {
 public:
-    Worker(winapi::Process&& process) : m_cmd{Command::create()}, m_process{std::move(process)} {}
+    Worker(winapi::Process&& process) : m_cmd(Command::create()), m_process(std::move(process)) {}
+
+    Worker(Worker&& other) BOOST_NOEXCEPT_OR_NOTHROW : m_cmd(std::move(other.m_cmd)),
+                                                       m_process(std::move(other.m_process)) {}
+
+    Worker& operator=(Worker other) BOOST_NOEXCEPT_OR_NOTHROW {
+        swap(other);
+        return *this;
+    }
+
+    void swap(Worker& other) BOOST_NOEXCEPT_OR_NOTHROW {
+        using std::swap;
+        swap(m_cmd, other.m_cmd);
+        swap(m_process, other.m_process);
+    }
+
+    Worker(const Worker&) = delete;
 
     ~Worker() {
         try {
@@ -83,4 +101,17 @@ private:
     winapi::Process m_process;
 };
 
+inline void swap(Worker& a, Worker& b) BOOST_NOEXCEPT_OR_NOTHROW {
+    a.swap(b);
+}
+
 } // namespace worker
+
+namespace std {
+
+template <>
+inline void swap(worker::Worker& a, worker::Worker& b) BOOST_NOEXCEPT_OR_NOTHROW {
+    a.swap(b);
+}
+
+} // namespace std

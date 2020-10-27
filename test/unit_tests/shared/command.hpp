@@ -33,15 +33,6 @@ BOOST_STATIC_CONSTEXPR auto COMMAND_SHMEM_NAME = "shmem-test-cmd";
 
 class Command {
 public:
-    typedef winapi::SharedObject<Command> Shared;
-
-    static Shared create() { return Shared::create(COMMAND_SHMEM_NAME); }
-    static Shared open() { return Shared::open(COMMAND_SHMEM_NAME); }
-
-    typedef boost::interprocess::interprocess_mutex mutex;
-    typedef boost::interprocess::interprocess_condition condition_variable;
-    typedef boost::interprocess::scoped_lock<mutex> lock;
-
     enum Action {
         EXIT = 1,
         GET_CONSOLE_WINDOW,
@@ -62,8 +53,18 @@ public:
         fixed_size::StringList<> console_buffer;
     };
 
+    typedef winapi::SharedObject<Command> Shared;
+
+    typedef boost::interprocess::interprocess_mutex mutex;
+    typedef boost::interprocess::interprocess_condition condition_variable;
+    typedef boost::interprocess::scoped_lock<mutex> lock;
+
     typedef std::function<void(Args&)> SetArgs;
     typedef std::function<void(const Result&)> ReadResult;
+    typedef std::function<void(Action, const Args&, Result&)> ProcessAction;
+
+    static Shared create() { return Shared::create(COMMAND_SHMEM_NAME); }
+    static Shared open() { return Shared::open(COMMAND_SHMEM_NAME); }
 
     void get_result(Action action, const SetArgs& set_args, const ReadResult& read_result) {
         {
@@ -103,8 +104,6 @@ public:
     void get_result(Action action) {
         return get_result(action, [](const Result&) {});
     }
-
-    typedef std::function<void(Action, const Args&, Result&)> ProcessAction;
 
     void process_action(const ProcessAction& callback) {
         {

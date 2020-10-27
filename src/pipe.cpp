@@ -12,6 +12,7 @@
 #include <windows.h>
 
 #include <cstring>
+#include <utility>
 
 namespace winapi {
 namespace {
@@ -41,6 +42,21 @@ void create_pipe(Handle& read_end, Handle& write_end) {
 
 Pipe::Pipe() {
     create_pipe(m_read_end, m_write_end);
+}
+
+Pipe::Pipe(Pipe&& other) BOOST_NOEXCEPT_OR_NOTHROW {
+    swap(other);
+}
+
+Pipe& Pipe::operator=(Pipe other) BOOST_NOEXCEPT_OR_NOTHROW {
+    swap(other);
+    return *this;
+}
+
+void Pipe::swap(Pipe& other) BOOST_NOEXCEPT_OR_NOTHROW {
+    using std::swap;
+    swap(m_read_end, other.m_read_end);
+    swap(m_write_end, other.m_write_end);
 }
 
 } // namespace winapi

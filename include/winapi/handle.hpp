@@ -25,8 +25,8 @@ public:
 
     Handle(Handle&& other) BOOST_NOEXCEPT_OR_NOTHROW;
     Handle& operator=(Handle other) BOOST_NOEXCEPT_OR_NOTHROW;
-
     void swap(Handle& other) BOOST_NOEXCEPT_OR_NOTHROW;
+    Handle(const Handle&) = delete;
 
     HANDLE get() const { return m_impl.get(); }
     HANDLE ptr() const { return get(); }
@@ -65,8 +65,6 @@ private:
     };
 
     std::unique_ptr<void, Close> m_impl;
-
-    Handle(const Handle&) = delete;
 };
 
 inline void swap(Handle& a, Handle& b) BOOST_NOEXCEPT_OR_NOTHROW {

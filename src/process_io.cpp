@@ -16,33 +16,33 @@
 namespace winapi {
 namespace process {
 
-Stdin::Stdin() : Stream{Handle::std_in()} {}
+Stdin::Stdin() : Stream(Handle::std_in()) {}
 
-Stdout::Stdout() : Stream{Handle::std_out()} {}
+Stdout::Stdout() : Stream(Handle::std_out()) {}
 
-Stderr::Stderr() : Stream{Handle::std_err()} {}
+Stderr::Stderr() : Stream(Handle::std_err()) {}
 
-Stdin::Stdin(const std::string& path) : Stream{File::open_r(path)} {}
+Stdin::Stdin(const std::string& path) : Stream(File::open_r(path)) {}
 
-Stdin::Stdin(const CanonicalPath& path) : Stream{File::open_r(path)} {}
+Stdin::Stdin(const CanonicalPath& path) : Stream(File::open_r(path)) {}
 
-Stdout::Stdout(const std::string& path) : Stream{File::open_w(path)} {}
+Stdout::Stdout(const std::string& path) : Stream(File::open_w(path)) {}
 
-Stdout::Stdout(const CanonicalPath& path) : Stream{File::open_w(path)} {}
+Stdout::Stdout(const CanonicalPath& path) : Stream(File::open_w(path)) {}
 
-Stderr::Stderr(const std::string& path) : Stream{File::open_w(path)} {}
+Stderr::Stderr(const std::string& path) : Stream(File::open_w(path)) {}
 
-Stderr::Stderr(const CanonicalPath& path) : Stream{File::open_w(path)} {}
+Stderr::Stderr(const CanonicalPath& path) : Stream(File::open_w(path)) {}
 
-Stdin::Stdin(Pipe& pipe) : Stream{std::move(pipe.read_end())} {
+Stdin::Stdin(Pipe& pipe) : Stream(std::move(pipe.read_end())) {
     pipe.write_end().dont_inherit();
 }
 
-Stdout::Stdout(Pipe& pipe) : Stream{std::move(pipe.write_end())} {
+Stdout::Stdout(Pipe& pipe) : Stream(std::move(pipe.write_end())) {
     pipe.read_end().dont_inherit();
 }
 
-Stderr::Stderr(Pipe& pipe) : Stream{std::move(pipe.write_end())} {
+Stderr::Stderr(Pipe& pipe) : Stream(std::move(pipe.write_end())) {
     pipe.read_end().dont_inherit();
 }
 
@@ -60,35 +60,25 @@ void Stream::swap(Stream& other) BOOST_NOEXCEPT_OR_NOTHROW {
     swap(handle, other.handle);
 }
 
-void swap(Stream& a, Stream& b) BOOST_NOEXCEPT_OR_NOTHROW {
-    a.swap(b);
-}
-
-Stdin::Stdin(Stdin&& other) BOOST_NOEXCEPT_OR_NOTHROW : Stream{std::move(other)} {}
+Stdin::Stdin(Stdin&& other) BOOST_NOEXCEPT_OR_NOTHROW : Stream(std::move(other)) {}
 
 Stdin& Stdin::operator=(Stdin other) BOOST_NOEXCEPT_OR_NOTHROW {
     Stream::operator=(std::move(other));
     return *this;
 }
 
-Stdout::Stdout(Stdout&& other) BOOST_NOEXCEPT_OR_NOTHROW : Stream{std::move(other)} {}
+Stdout::Stdout(Stdout&& other) BOOST_NOEXCEPT_OR_NOTHROW : Stream(std::move(other)) {}
 
 Stdout& Stdout::operator=(Stdout other) BOOST_NOEXCEPT_OR_NOTHROW {
     Stream::operator=(std::move(other));
     return *this;
 }
 
-Stderr::Stderr(Stderr&& other) BOOST_NOEXCEPT_OR_NOTHROW : Stream{std::move(other)} {}
+Stderr::Stderr(Stderr&& other) BOOST_NOEXCEPT_OR_NOTHROW : Stream(std::move(other)) {}
 
 Stderr& Stderr::operator=(Stderr other) BOOST_NOEXCEPT_OR_NOTHROW {
     Stream::operator=(std::move(other));
     return *this;
-}
-
-void IO::close() {
-    std_in.handle.close();
-    std_out.handle.close();
-    std_err.handle.close();
 }
 
 IO::IO(IO&& other) BOOST_NOEXCEPT_OR_NOTHROW {
@@ -107,8 +97,10 @@ void IO::swap(IO& other) BOOST_NOEXCEPT_OR_NOTHROW {
     swap(std_err, other.std_err);
 }
 
-void swap(IO& a, IO& b) BOOST_NOEXCEPT_OR_NOTHROW {
-    a.swap(b);
+void IO::close() {
+    std_in.handle.close();
+    std_out.handle.close();
+    std_err.handle.close();
 }
 
 } // namespace process

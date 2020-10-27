@@ -38,7 +38,7 @@ private:
 
     SharedMemory() = default;
 
-    SharedMemory(Handle&& handle, void* addr) : m_handle{std::move(handle)}, m_addr{addr} {}
+    SharedMemory(Handle&& handle, void* addr) : m_handle(std::move(handle)), m_addr(addr) {}
 
     Handle m_handle;
     std::unique_ptr<void, Unmap> m_addr;
@@ -67,24 +67,26 @@ public:
     }
 
     SharedObject(SharedObject&& other) BOOST_NOEXCEPT_OR_NOTHROW
-        : m_shmem{std::move(other.m_shmem)},
-          m_destruct{other.m_destruct} {}
+        : m_shmem(std::move(other.m_shmem)),
+          m_destruct(other.m_destruct) {}
 
     SharedObject& operator=(SharedObject other) BOOST_NOEXCEPT_OR_NOTHROW {
         swap(other);
         return *this;
     }
 
-    ~SharedObject() {
-        if (m_destruct && ptr()) {
-            ptr()->~T();
-        }
-    }
-
     void swap(SharedObject& other) BOOST_NOEXCEPT_OR_NOTHROW {
         using std::swap;
         swap(m_shmem, other.m_shmem);
         swap(m_destruct, other.m_destruct);
+    }
+
+    SharedObject(const SharedObject&) = delete;
+
+    ~SharedObject() {
+        if (m_destruct && ptr()) {
+            ptr()->~T();
+        }
     }
 
     T* ptr() const { return reinterpret_cast<T*>(m_shmem.ptr()); }
@@ -94,13 +96,11 @@ public:
     T& operator*() const { return get(); }
 
 private:
-    explicit SharedObject(SharedMemory&& shmem) : m_shmem{std::move(shmem)} {}
+    explicit SharedObject(SharedMemory&& shmem) : m_shmem(std::move(shmem)) {}
 
     SharedMemory m_shmem;
     // Destruct only once, no matter the number of mappings.
     bool m_destruct = false;
-
-    SharedObject(const SharedObject&) = delete;
 };
 
 template <typename T>
@@ -114,11 +114,6 @@ namespace std {
 
 template <>
 inline void swap(winapi::SharedMemory& a, winapi::SharedMemory& b) BOOST_NOEXCEPT_OR_NOTHROW {
-    a.swap(b);
-}
-
-template <typename T>
-inline void swap(winapi::SharedObject<T>& a, winapi::SharedObject<T>& b) BOOST_NOEXCEPT_OR_NOTHROW {
     a.swap(b);
 }
 

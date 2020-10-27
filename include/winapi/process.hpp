@@ -27,7 +27,7 @@ struct ProcessParameters {
         ConsoleNew,
     };
 
-    explicit ProcessParameters(const CommandLine& cmd_line) : cmd_line{cmd_line} {}
+    explicit ProcessParameters(const CommandLine& cmd_line) : cmd_line(cmd_line) {}
 
     // VS 2013 won't generate these automatically.
     ProcessParameters(ProcessParameters&&) BOOST_NOEXCEPT_OR_NOTHROW;
@@ -40,16 +40,18 @@ struct ProcessParameters {
     ConsoleCreationMode console_mode = ConsoleNew;
 };
 
-void swap(ProcessParameters&, ProcessParameters&) BOOST_NOEXCEPT_OR_NOTHROW;
+inline void swap(ProcessParameters& a, ProcessParameters& b) BOOST_NOEXCEPT_OR_NOTHROW {
+    a.swap(b);
+}
 
 struct ShellParameters : ProcessParameters {
-    explicit ShellParameters(const CommandLine& cmd_line) : ProcessParameters{cmd_line} {}
-
     static ShellParameters runas(const CommandLine& cmd_line) {
         ShellParameters params{cmd_line};
         params.verb = "runas";
         return params;
     }
+
+    explicit ShellParameters(const CommandLine& cmd_line) : ProcessParameters(cmd_line) {}
 
     // VS 2013 won't generate these automatically.
     ShellParameters(ShellParameters&&) BOOST_NOEXCEPT_OR_NOTHROW;
@@ -60,7 +62,9 @@ struct ShellParameters : ProcessParameters {
     boost::optional<std::string> verb;
 };
 
-void swap(ShellParameters&, ShellParameters&) BOOST_NOEXCEPT_OR_NOTHROW;
+inline void swap(ShellParameters& a, ShellParameters& b) BOOST_NOEXCEPT_OR_NOTHROW {
+    a.swap(b);
+}
 
 class Process {
 public:
@@ -89,14 +93,16 @@ public:
     static std::string get_resource_string(unsigned int id);
 
 private:
-    explicit Process(Handle&& handle) : m_handle{std::move(handle)} {}
+    explicit Process(Handle&& handle) : m_handle(std::move(handle)) {}
 
     static HMODULE get_exe_module();
 
     Handle m_handle;
 };
 
-void swap(Process& a, Process& b) BOOST_NOEXCEPT_OR_NOTHROW;
+inline void swap(Process& a, Process& b) BOOST_NOEXCEPT_OR_NOTHROW {
+    a.swap(b);
+}
 
 } // namespace winapi
 

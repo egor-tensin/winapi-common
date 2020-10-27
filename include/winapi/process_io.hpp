@@ -20,16 +20,18 @@ namespace process {
 struct Stream {
     Stream(Handle&& handle) : handle{std::move(handle)} {}
 
-    Handle handle;
-
     // VS 2013 won't generate these automatically.
     Stream(Stream&& other) BOOST_NOEXCEPT_OR_NOTHROW;
     Stream& operator=(Stream other) BOOST_NOEXCEPT_OR_NOTHROW;
     void swap(Stream& other) BOOST_NOEXCEPT_OR_NOTHROW;
     Stream(const Stream&) = delete;
+
+    Handle handle;
 };
 
-void swap(Stream& a, Stream& b) BOOST_NOEXCEPT_OR_NOTHROW;
+inline void swap(Stream& a, Stream& b) BOOST_NOEXCEPT_OR_NOTHROW {
+    a.swap(b);
+}
 
 struct Stdin : Stream {
     Stdin();
@@ -70,20 +72,22 @@ struct Stderr : Stream {
 struct IO {
     IO() = default;
 
-    void close();
-
-    Stdin std_in;
-    Stdout std_out;
-    Stderr std_err;
-
     // VS 2013 won't generate these automatically.
     IO(IO&& other) BOOST_NOEXCEPT_OR_NOTHROW;
     IO& operator=(IO other) BOOST_NOEXCEPT_OR_NOTHROW;
     void swap(IO& other) BOOST_NOEXCEPT_OR_NOTHROW;
     IO(const IO&) = delete;
+
+    void close();
+
+    Stdin std_in;
+    Stdout std_out;
+    Stderr std_err;
 };
 
-void swap(IO& a, IO& b) BOOST_NOEXCEPT_OR_NOTHROW;
+inline void swap(IO& a, IO& b) BOOST_NOEXCEPT_OR_NOTHROW {
+    a.swap(b);
+}
 
 } // namespace process
 } // namespace winapi

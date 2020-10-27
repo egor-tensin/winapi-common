@@ -38,8 +38,6 @@ public:
         // Lines are null-terminated, and don't store their lenghts, so...
         return data();
     }
-
-private:
 };
 
 // 5 lines to store is also arbitrary, set it higher if needed.

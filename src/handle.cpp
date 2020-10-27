@@ -35,7 +35,7 @@ bool is_std_handle(HANDLE handle) {
 
 } // namespace
 
-Handle::Handle(HANDLE impl) : m_impl{impl} {}
+Handle::Handle(HANDLE impl) : m_impl(impl) {}
 
 Handle::Handle(Handle&& other) BOOST_NOEXCEPT_OR_NOTHROW {
     swap(other);
