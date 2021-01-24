@@ -81,3 +81,41 @@ jobs:
         with:
           name: 'winapi-common-${{ matrix.os }}-${{ matrix.platform }}-${{ matrix.configuration }}'
           path: '${{ runner.workspace }}/install/'
+      - name: Make test logs directory
+        run: mkdir ../test_logs
+        if: runner.os == 'Windows'
+      - name: Run unit tests (w/o console tests)
+        run: |
+          $args = @(
+              '--log_level=all',
+              '--log_sink=..\test_logs\tests.log',
+              '--report_sink=..\test_logs\report.txt',
+              '--run_test=!console_tests,process_console_tests',
+              '--',
+              '--echo_exe=..\install\bin\winapi-common-test-echo.exe',
+              '--worker_exe=..\install\bin\winapi-common-test-worker.exe'
+          )
+          ..\install\bin\winapi-common-unit-tests.exe $args
+        if: runner.os == 'Windows'
+      - name: Run unit tests (console tests)
+        run: |
+          $args = @(
+              '--log_level=all',
+              '--log_sink=..\test_logs\tests_console.log',
+              '--report_sink=..\test_logs\report_console.txt',
+              '--run_test=console_tests,process_console_tests',
+              '--',
+              '--echo_exe=..\install\bin\winapi-common-test-echo.exe',
+              '--worker_exe=..\install\bin\winapi-common-test-worker.exe'
+          )
+          Start-Process `
+              -FilePath ..\install\bin\winapi-common-unit-tests.exe `
+              -ArgumentList $args `
+              -Wait
+        if: runner.os == 'Windows'
+      - name: Upload the test logs
+        uses: actions/upload-artifact@v2
+        with:
+          name: 'test_logs-${{ matrix.os }}-${{ matrix.platform }}-${{ matrix.configuration }}'
+          path: '${{ runner.workspace }}/test_logs/'
+        if: always() && runner.os == 'Windows'
