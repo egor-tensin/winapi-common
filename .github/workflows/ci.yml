@@ -30,13 +30,13 @@ jobs:
         platform: [x64, x86]
         configuration: [Debug, RelWithDebInfo]
         include:
-          # Prettier run names.
-          - {os: windows-2016, toolset: msvc, name: VS 2017}
-          - {os: windows-2019, toolset: msvc, name: VS 2019}
-          - {os: ubuntu-20.04, toolset: mingw, name: MinGW}
+          - {os: windows-2016, toolset: msvc}
+          - {os: windows-2019, toolset: msvc}
+          - {os: ubuntu-20.04, toolset: mingw}
     runs-on: '${{ matrix.os }}'
-    name: 'Build: ${{ matrix.name }} / ${{ matrix.platform }} / ${{ matrix.configuration }}'
+    name: 'Build: ${{ matrix.os }} / ${{ matrix.toolset }} / ${{ matrix.platform }} / ${{ matrix.configuration }}'
     env:
+      toolset: '${{ matrix.toolset }}'
       platform: '${{ matrix.platform }}'
       configuration: '${{ matrix.configuration }}'
       boost_version: 1.65.0
@@ -60,13 +60,8 @@ jobs:
       - name: Boost (MinGW)
         run: |
           cd cmake
-          python -m project.ci.github.boost --toolset '${{ matrix.toolset }}' -- --with-test
-          echo 'BOOST_DIR=${{ runner.workspace }}\boost' >> $env:GITHUB_ENV
+          python -m project.ci.github.boost -- --with-test
         if: matrix.toolset == 'mingw'
-      - name: Boost (MSVC)
-        run: |
-          echo "BOOST_DIR=${env:BOOST_ROOT_1_72_0}" >> $env:GITHUB_ENV
-        if: matrix.toolset == 'msvc'
       - name: Build
         run: |
           cd cmake
@@ -75,11 +70,11 @@ jobs:
           } else {
               @()
           }
-          python -m project.ci.github.cmake --toolset '${{ matrix.toolset }}' --boost $env:BOOST_DIR --install $flags
+          python -m project.ci.github.cmake --install $flags
       - name: Upload the binaries
         uses: actions/upload-artifact@v2
         with:
-          name: 'winapi-common-${{ matrix.os }}-${{ matrix.platform }}-${{ matrix.configuration }}'
+          name: 'winapi-common-${{ matrix.os }}-${{ matrix.toolset }}-${{ matrix.platform }}-${{ matrix.configuration }}'
           path: '${{ runner.workspace }}/install/'
       - name: Make test logs directory
         run: mkdir ../test_logs
