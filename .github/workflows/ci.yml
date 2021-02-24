@@ -92,6 +92,12 @@ jobs:
           )
           ..\install\bin\winapi-common-unit-tests.exe $args
         if: runner.os == 'Windows'
+      - name: Check test report (w/o console tests)
+        run: |
+          cat ..\test_logs\report.txt
+          $last_line = Get-Content ..\test_logs\report.txt -Tail 1
+          $($last_line -eq '*** No errors detected') -or $(throw $last_line)
+        if: runner.os == 'Windows'
       - name: Run unit tests (console tests)
         run: |
           $args = @(
@@ -107,6 +113,12 @@ jobs:
               -FilePath ..\install\bin\winapi-common-unit-tests.exe `
               -ArgumentList $args `
               -Wait
+        if: runner.os == 'Windows'
+      - name: Check test report (console tests)
+        run: |
+          cat ..\test_logs\report_console.txt
+          $last_line = Get-Content ..\test_logs\report_console.txt -Tail 1
+          $($last_line -eq '*** No errors detected') -or $(throw $last_line)
         if: runner.os == 'Windows'
       - name: Upload the test logs
         uses: actions/upload-artifact@v2
