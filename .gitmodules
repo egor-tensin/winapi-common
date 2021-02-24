@@ -4,3 +4,6 @@
 [submodule "3rdparty/winapi/utf8"]
 	path = 3rdparty/winapi/utf8
 	url = https://github.com/egor-tensin/winapi-utf8.git
+[submodule "3rdparty/microsoft/SafeInt"]
+	path = 3rdparty/microsoft/SafeInt
+	url = https://github.com/dcleblanc/SafeInt.git

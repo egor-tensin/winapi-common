@@ -8,6 +8,8 @@
 #include <winapi/utf8.hpp>
 #include <winapi/utils.hpp>
 
+#include <SafeInt.hpp>
+
 #include <boost/algorithm/string.hpp>
 #include <boost/config.hpp>
 
@@ -96,40 +98,35 @@ CommandLine::CommandLine(std::vector<std::string>&& argv) : m_args(std::move(arg
 }
 
 std::string CommandLine::escape(const std::string& arg) {
-    std::string safe;
-    // Including the quotes:
-    safe.reserve(arg.length() + 2);
-
-    safe.push_back('"');
+    std::ostringstream safe;
+    safe << '"';
 
     for (auto it = arg.cbegin(); it != arg.cend(); ++it) {
-        std::size_t numof_backslashes = 0;
+        SafeInt<std::size_t> numof_backslashes{0};
 
         for (; it != arg.cend() && *it == '\\'; ++it)
             ++numof_backslashes;
 
         if (it == arg.cend()) {
-            safe.reserve(safe.capacity() + numof_backslashes);
-            safe.append(2 * numof_backslashes, '\\');
+            safe << std::string(2 * numof_backslashes, '\\');
             break;
         }
 
         switch (*it) {
             case L'"':
-                safe.reserve(safe.capacity() + numof_backslashes + 1);
-                safe.append(2 * numof_backslashes + 1, '\\');
+                safe << std::string(2 * numof_backslashes + 1, '\\');
                 break;
 
             default:
-                safe.append(numof_backslashes, '\\');
+                safe << std::string(numof_backslashes, '\\');
                 break;
         }
 
-        safe.push_back(*it);
+        safe << *it;
     }
 
-    safe.push_back('"');
-    return safe;
+    safe << '"';
+    return safe.str();
 }
 
 std::string CommandLine::escape_cmd(const std::string& arg) {

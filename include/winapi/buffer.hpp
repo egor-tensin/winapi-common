@@ -5,6 +5,8 @@
 
 #pragma once
 
+#include <SafeInt.hpp>
+
 #include <cstddef>
 #include <cstring>
 #include <initializer_list>
@@ -35,7 +37,11 @@ public:
 
     template <typename CharT>
     void set(const std::basic_string<CharT>& src) {
-        set(src.c_str(), src.length() * sizeof(std::basic_string<CharT>::char_type));
+        std::size_t new_size = 0;
+        if (!SafeMultiply(src.length(), sizeof(std::basic_string<CharT>::char_type), new_size)) {
+            throw std::runtime_error{"Destination buffer size is too large"};
+        }
+        set(src.c_str(), new_size);
     }
 
     void set(const void* src, std::size_t nb) {
@@ -64,7 +70,13 @@ public:
 
     void add(const Buffer& src) {
         const auto nb = size();
-        resize(size() + src.size());
+        {
+            std::size_t new_size = 0;
+            if (!SafeAdd(size(), src.size(), new_size)) {
+                throw std::runtime_error{"Destination buffer size is too large"};
+            }
+            resize(new_size);
+        }
         std::memcpy(data() + nb, src.data(), src.size());
     }
 };
