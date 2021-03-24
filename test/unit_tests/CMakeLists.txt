@@ -10,9 +10,7 @@ find_package(Boost REQUIRED COMPONENTS unit_test_framework)
 target_link_libraries(unit_tests PRIVATE Boost::disable_autolinking Boost::unit_test_framework)
 
 install(TARGETS unit_tests RUNTIME DESTINATION bin)
-if(CMAKE_CXX_COMPILER_ID STREQUAL "MSVC")
-    install(FILES "$<TARGET_PDB_FILE:unit_tests>" DESTINATION bin OPTIONAL)
-endif()
+install_pdbs(TARGETS unit_tests DESTINATION bin)
 
 file(GLOB worker_src "worker/*.cpp")
 add_executable(worker ${worker_src} ${shared_src})
@@ -24,6 +22,4 @@ find_package(Boost REQUIRED)
 target_link_libraries(worker PRIVATE Boost::disable_autolinking Boost::boost)
 
 install(TARGETS worker RUNTIME DESTINATION bin)
-if(CMAKE_CXX_COMPILER_ID STREQUAL "MSVC")
-    install(FILES "$<TARGET_PDB_FILE:worker>" DESTINATION bin OPTIONAL)
-endif()
+install_pdbs(TARGETS worker DESTINATION bin)
