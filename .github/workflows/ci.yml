@@ -40,6 +40,7 @@ jobs:
       PLATFORM: '${{ matrix.platform }}'
       CONFIGURATION: '${{ matrix.configuration }}'
       BOOST_VERSION: 1.65.0
+      CMAKE_FLAGS: -D WINAPI_COMMON_TESTS=ON
     defaults:
       run:
         shell: pwsh
@@ -58,70 +59,22 @@ jobs:
           platform: '${{ matrix.platform }}'
         if: matrix.toolset == 'mingw'
       - name: Build Boost
-        run: |
-          cd cmake
-          python -m project.ci.boost -- --with-test
+        run: make deps
       - name: Build
-        run: |
-          cd cmake
-          $flags = if ('${{ matrix.toolset }}' -eq 'msvc') {
-              '--','-D','WINAPI_COMMON_TESTS=ON'
-          } else {
-              @()
-          }
-          python -m project.ci.cmake --install $flags
+        run: make install
       - name: Upload binaries
         uses: actions/upload-artifact@v2
         with:
           name: 'winapi-common-${{ matrix.os }}-${{ matrix.toolset }}-${{ matrix.platform }}-${{ matrix.configuration }}'
           path: '${{ runner.workspace }}/build/install/'
-      - name: Make test logs directory
-        run: mkdir ../test_logs
-        if: runner.os == 'Windows'
-      - name: Run unit tests (w/o console tests)
-        run: |
-          $args = @(
-              '--log_level=all',
-              '--log_sink=..\test_logs\tests.log',
-              '--report_sink=..\test_logs\report.txt',
-              '--run_test=!console_tests,process_console_tests',
-              '--',
-              '--echo_exe=..\build\install\bin\winapi-common-test-echo.exe',
-              '--worker_exe=..\build\install\bin\winapi-common-test-worker.exe'
-          )
-          ..\build\install\bin\winapi-common-unit-tests.exe $args
-        if: runner.os == 'Windows'
-      - name: Check test report (w/o console tests)
-        run: |
-          cat ..\test_logs\report.txt
-          $last_line = Get-Content ..\test_logs\report.txt -Tail 1
-          $($last_line -eq '*** No errors detected') -or $(throw $last_line)
-        if: runner.os == 'Windows'
-      - name: Run unit tests (console tests)
-        run: |
-          $args = @(
-              '--log_level=all',
-              '--log_sink=..\test_logs\tests_console.log',
-              '--report_sink=..\test_logs\report_console.txt',
-              '--run_test=console_tests,process_console_tests',
-              '--',
-              '--echo_exe=..\build\install\bin\winapi-common-test-echo.exe',
-              '--worker_exe=..\build\install\bin\winapi-common-test-worker.exe'
-          )
-          Start-Process `
-              -FilePath ..\build\install\bin\winapi-common-unit-tests.exe `
-              -ArgumentList $args `
-              -Wait
-        if: runner.os == 'Windows'
-      - name: Check test report (console tests)
-        run: |
-          cat ..\test_logs\report_console.txt
-          $last_line = Get-Content ..\test_logs\report_console.txt -Tail 1
-          $($last_line -eq '*** No errors detected') -or $(throw $last_line)
+      - name: Test
+        run: make test
         if: runner.os == 'Windows'
       - name: Upload test logs
         uses: actions/upload-artifact@v2
         with:
           name: 'test_logs-${{ matrix.os }}-${{ matrix.platform }}-${{ matrix.configuration }}'
-          path: '${{ runner.workspace }}/test_logs/'
+          path: |
+            ${{ runner.workspace }}/build/**/*_tests.log
+            ${{ runner.workspace }}/build/**/*_report.txt
         if: always() && runner.os == 'Windows'
