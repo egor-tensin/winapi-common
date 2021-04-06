@@ -1,27 +1,23 @@
 cmake_minimum_required(VERSION 3.5) # for Boost::* imported targets
 
 project(winapi_common CXX)
-
 enable_testing()
 
 include(cmake/common.cmake)
+
+find_package(Boost REQUIRED)
+if(NOT TARGET SafeInt)
+    add_subdirectory(3rdparty/microsoft/SafeInt EXCLUDE_FROM_ALL)
+endif()
+add_subdirectory(3rdparty/winapi/utf8 EXCLUDE_FROM_ALL)
 
 file(GLOB_RECURSE winapi_common_include "include/*.hpp")
 file(GLOB winapi_common_src "src/*.cpp")
 add_library(winapi_common ${winapi_common_include} ${winapi_common_src})
 target_include_directories(winapi_common PUBLIC include)
-
-add_subdirectory(3rdparty/winapi/utf8 EXCLUDE_FROM_ALL)
 target_link_libraries(winapi_common PRIVATE winapi_utf8)
-
-if(NOT TARGET SafeInt)
-    add_subdirectory(3rdparty/microsoft/SafeInt EXCLUDE_FROM_ALL)
-endif()
 target_link_libraries(winapi_common PUBLIC SafeInt)
-
-find_package(Boost REQUIRED)
-target_link_libraries(winapi_common PUBLIC Boost::boost)
-
+target_link_libraries(winapi_common PUBLIC Boost::disable_autolinking Boost::boost)
 install(TARGETS winapi_common ARCHIVE DESTINATION lib)
 install(DIRECTORY include/winapi DESTINATION include)
 
