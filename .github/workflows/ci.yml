@@ -67,6 +67,7 @@ jobs:
         with:
           name: 'winapi-common-${{ matrix.os }}-${{ matrix.toolset }}-${{ matrix.platform }}-${{ matrix.configuration }}'
           path: '${{ runner.workspace }}/build/install/'
+          if-no-files-found: error
       - name: Test
         run: make test
         if: runner.os == 'Windows'
@@ -77,4 +78,5 @@ jobs:
           path: |
             ${{ runner.workspace }}/build/**/*_tests.log
             ${{ runner.workspace }}/build/**/*_report.txt
+          if-no-files-found: error
         if: always() && runner.os == 'Windows'
