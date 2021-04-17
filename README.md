@@ -1,7 +1,7 @@
 winapi-common
 =============
 
-[![CI](https://github.com/egor-tensin/winapi-common/workflows/CI/badge.svg)](https://github.com/egor-tensin/winapi-common/actions?query=workflow%3ACI)
+[![CI](https://github.com/egor-tensin/winapi-common/actions/workflows/ci.yml/badge.svg)](https://github.com/egor-tensin/winapi-common/actions/workflows/ci.yml)
 
 C++ wrappers for various common WinAPI entities I've had to use in various
 projects over the years.
