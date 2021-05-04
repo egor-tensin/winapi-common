@@ -8,8 +8,6 @@
 #include <winapi/utf8.hpp>
 #include <winapi/utils.hpp>
 
-#include <SafeInt.hpp>
-
 #include <boost/algorithm/string.hpp>
 #include <boost/config.hpp>
 
@@ -102,7 +100,7 @@ std::string CommandLine::escape(const std::string& arg) {
     safe << '"';
 
     for (auto it = arg.cbegin(); it != arg.cend(); ++it) {
-        SafeInt<std::size_t> numof_backslashes{0};
+        std::size_t numof_backslashes = 0;
 
         for (; it != arg.cend() && *it == '\\'; ++it)
             ++numof_backslashes;
