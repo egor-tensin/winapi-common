@@ -43,7 +43,7 @@ bool is_window_visible() {
 winapi::Handle write_to(winapi::Handle dest, const std::string& msg) {
     try {
         dest.write(msg + "\r\n");
-    } catch (const std::exception& e) {
+    } catch (const std::exception&) {
         return winapi::Handle{};
     }
     return dest;
@@ -111,7 +111,7 @@ int loop() {
 
 } // namespace
 
-int main(int argc, char* argv[]) {
+int main() {
     int ec = loop();
     std::this_thread::sleep_for(std::chrono::milliseconds{1000});
     return ec;

@@ -9,6 +9,8 @@
 
 #include <windows.h>
 
+#include <limits>
+#include <stdexcept>
 #include <string>
 #include <vector>
 
@@ -23,7 +25,10 @@ std::wstring do_canonicalize(const std::wstring& path) {
     buffer.resize(init_buffer_size);
 
     while (true) {
-        const auto nch = ::GetFullPathNameW(path.c_str(), buffer.size(), buffer.data(), NULL);
+        if (buffer.size() > std::numeric_limits<DWORD>::max())
+            throw std::range_error{"Path buffer is too large"};
+        const auto nch = ::GetFullPathNameW(
+            path.c_str(), static_cast<DWORD>(buffer.size()), buffer.data(), NULL);
 
         if (nch == 0) {
             throw error::windows(GetLastError(), "GetFullPathNameW");

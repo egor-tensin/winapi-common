@@ -14,8 +14,10 @@
 #include <windows.h>
 
 #include <cstddef>
+#include <cstdint>
 #include <cstring>
 #include <sstream>
+#include <stdexcept>
 #include <string>
 #include <utility>
 #include <vector>
@@ -30,13 +32,13 @@ public:
 
     Buffer(winapi::Handle&& handle) : m_handle(std::move(handle)), m_info(get_info(m_handle)) {}
 
-    std::size_t get_columns() const { return m_info.dwSize.X; }
+    int16_t get_columns() const { return m_info.dwSize.X; }
 
-    std::size_t get_lines() const { return m_info.dwSize.Y; }
+    int16_t get_lines() const { return m_info.dwSize.Y; }
 
-    std::size_t get_cursor_column() const { return m_info.dwCursorPosition.X; }
+    int16_t get_cursor_column() const { return m_info.dwCursorPosition.X; }
 
-    std::size_t get_cursor_line() const { return m_info.dwCursorPosition.Y; }
+    int16_t get_cursor_line() const { return m_info.dwCursorPosition.Y; }
 
     void update() { m_info = get_info(m_handle); }
 
@@ -65,17 +67,17 @@ public:
      * I also don't know how it interacts with tab characters '\t', encodings,
      * etc. It sucks, don't use it.
      */
-    std::vector<std::string> read_lines(int top, int bottom) const {
-        if (top < 0) {
+    std::vector<std::string> read_lines(int16_t top, int16_t bottom) const {
+        if (top < 0)
             top = get_cursor_line() + top;
-        }
-        if (bottom < 0) {
+        if (bottom < 0)
             bottom = get_cursor_line() + bottom;
-        }
+        if (top < 0 || bottom < 0)
+            throw std::range_error{"Invalid console line"};
         if (top > bottom) {
             std::swap(top, bottom);
         }
-        int numof_lines = bottom - top + 1;
+        int16_t numof_lines = bottom - top + 1;
 
         COORD buffer_size;
         buffer_size.X = get_columns();
@@ -111,13 +113,15 @@ public:
         return result;
     }
 
-    std::vector<std::string> read_last_lines(int numof_lines = 1) const {
-        return read_lines(-numof_lines, -1);
+    std::vector<std::string> read_last_lines(std::size_t numof_lines = 1) const {
+        if (numof_lines < 1 || numof_lines > INT16_MAX)
+            throw std::range_error{"Invalid number of lines"};
+        return read_lines(-static_cast<int16_t>(numof_lines), -1);
     }
 
     std::string read_last_line() const { return read_lines(-1, -1)[0]; }
 
-    std::string read_line(int n) const { return read_lines(n, n)[0]; }
+    std::string read_line(int16_t n) const { return read_lines(n, n)[0]; }
 
 private:
     static Info get_info(const winapi::Handle& handle) {

@@ -19,6 +19,7 @@
 
 #include <cstddef>
 #include <cstring>
+#include <limits>
 #include <sstream>
 #include <stdexcept>
 #include <string>
@@ -305,7 +306,10 @@ std::string Process::get_exe_path() {
     while (true) {
         SetLastError(ERROR_SUCCESS);
 
-        const auto nch = ::GetModuleFileNameW(NULL, buffer.data(), buffer.size());
+        if (buffer.size() > std::numeric_limits<DWORD>::max())
+            throw std::range_error{"Path buffer is too large"};
+        const auto nch =
+            ::GetModuleFileNameW(NULL, buffer.data(), static_cast<DWORD>(buffer.size()));
 
         if (nch == 0) {
             throw error::windows(GetLastError(), "GetModuleFileNameW");

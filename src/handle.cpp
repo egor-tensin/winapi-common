@@ -14,6 +14,7 @@
 
 #include <cassert>
 #include <cstddef>
+#include <limits>
 #include <sstream>
 #include <stdexcept>
 #include <utility>
@@ -83,7 +84,10 @@ bool Handle::read_chunk(Buffer& buffer) const {
     buffer.resize(max_chunk_size);
     DWORD nb_read = 0;
 
-    const auto ret = ::ReadFile(m_impl.get(), buffer.data(), buffer.size(), &nb_read, NULL);
+    if (buffer.size() > std::numeric_limits<DWORD>::max())
+        throw std::range_error{"Read buffer is too large"};
+    const auto ret =
+        ::ReadFile(m_impl.get(), buffer.data(), static_cast<DWORD>(buffer.size()), &nb_read, NULL);
 
     buffer.resize(nb_read);
 
@@ -121,7 +125,9 @@ Buffer Handle::read() const {
 void Handle::write(const void* data, std::size_t nb) const {
     DWORD nb_written = 0;
 
-    const auto ret = ::WriteFile(m_impl.get(), data, nb, &nb_written, NULL);
+    if (nb > std::numeric_limits<DWORD>::max())
+        throw std::range_error{"Write buffer is too large"};
+    const auto ret = ::WriteFile(m_impl.get(), data, static_cast<DWORD>(nb), &nb_written, NULL);
 
     if (!ret) {
         throw error::windows(GetLastError(), "WriteFile");
