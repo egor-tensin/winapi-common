@@ -9,6 +9,7 @@
 
 #include <windows.h>
 
+#include <cstdint>
 #include <sstream>
 #include <stdexcept>
 #include <string>
@@ -23,7 +24,7 @@ public:
 
     const char* name() const BOOST_NOEXCEPT_OR_NOTHROW { return "Windows"; }
 
-    std::string message(int) const;
+    std::string message(int32_t) const;
 };
 
 inline const CategoryWindows& category_windows() {

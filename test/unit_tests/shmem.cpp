@@ -9,6 +9,7 @@
 #include <boost/test/unit_test.hpp>
 
 #include <condition_variable>
+#include <cstdint>
 #include <mutex>
 #include <thread>
 
@@ -18,14 +19,14 @@ namespace {
 
 BOOST_CONSTEXPR_OR_CONST auto shmem_name = "test-data-struct";
 
-BOOST_CONSTEXPR_OR_CONST int main_data = -1;
-BOOST_CONSTEXPR_OR_CONST int setter1_data = 69;
-BOOST_CONSTEXPR_OR_CONST int setter2_data = 420;
+BOOST_CONSTEXPR_OR_CONST int32_t main_data = -1;
+BOOST_CONSTEXPR_OR_CONST int32_t setter1_data = 69;
+BOOST_CONSTEXPR_OR_CONST int32_t setter2_data = 420;
 
 struct DataStruct {
     std::mutex mtx;
     std::condition_variable cv;
-    int data;
+    int32_t data;
 };
 
 void setter1_main() {

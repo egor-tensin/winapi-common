@@ -15,6 +15,7 @@
 
 #include <windows.h>
 
+#include <cstdint>
 #include <string>
 #include <utility>
 
@@ -89,8 +90,8 @@ public:
 
     static std::string get_exe_path();
 
-    static Resource get_resource(unsigned int id);
-    static std::string get_resource_string(unsigned int id);
+    static Resource get_resource(uint32_t id);
+    static std::string get_resource_string(uint32_t id);
 
 private:
     explicit Process(Handle&& handle) : m_handle(std::move(handle)) {}

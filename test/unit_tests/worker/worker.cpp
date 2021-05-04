@@ -112,7 +112,7 @@ int loop() {
 } // namespace
 
 int main() {
-    int ec = loop();
+    auto ec = loop();
     std::this_thread::sleep_for(std::chrono::milliseconds{1000});
     return ec;
 }

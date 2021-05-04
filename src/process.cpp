@@ -124,8 +124,7 @@ Handle shell_execute(const ShellParameters& params) {
     const auto lpFile = widen(params.cmd_line.get_argv0());
     const auto lpParameters = widen(params.cmd_line.args_to_string());
 
-    BOOST_STATIC_CONSTEXPR unsigned long default_fMask =
-        SEE_MASK_NOCLOSEPROCESS | SEE_MASK_FLAG_NO_UI;
+    BOOST_STATIC_CONSTEXPR uint32_t default_fMask = SEE_MASK_NOCLOSEPROCESS | SEE_MASK_FLAG_NO_UI;
 
     auto fMask = default_fMask;
     auto nShow = SW_SHOWDEFAULT;
@@ -325,7 +324,7 @@ std::string Process::get_exe_path() {
     }
 }
 
-std::string Process::get_resource_string(unsigned int id) {
+std::string Process::get_resource_string(uint32_t id) {
     wchar_t* s = nullptr;
 
     const auto nch = ::LoadStringW(get_exe_module(), id, reinterpret_cast<wchar_t*>(&s), 0);
@@ -337,7 +336,7 @@ std::string Process::get_resource_string(unsigned int id) {
     return narrow(s, nch * sizeof(wchar_t));
 }
 
-Resource Process::get_resource(unsigned int id) {
+Resource Process::get_resource(uint32_t id) {
     const auto module = get_exe_module();
 
     const auto src = ::FindResourceA(module, MAKEINTRESOURCEA(id), RT_RCDATA);
