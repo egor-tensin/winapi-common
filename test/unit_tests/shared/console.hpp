@@ -102,9 +102,9 @@ public:
         }
 
         std::vector<std::string> result;
-        for (std::size_t i = 0; i < numof_lines; ++i) {
+        for (int16_t i = 0; i < numof_lines; ++i) {
             std::wostringstream oss;
-            for (std::size_t c = 0; c < buffer_size.X; ++c) {
+            for (int16_t c = 0; c < buffer_size.X; ++c) {
                 oss << buffer[i * buffer_size.X + c].Char.UnicodeChar;
             }
             result.emplace_back(boost::trim_right_copy(winapi::narrow(oss.str())));
