@@ -5,6 +5,7 @@
 
 #include <winapi/cmd_line.hpp>
 #include <winapi/error.hpp>
+#include <winapi/handle.hpp>
 #include <winapi/process.hpp>
 #include <winapi/process_io.hpp>
 #include <winapi/resource.hpp>
@@ -158,6 +159,85 @@ Handle shell_execute(const ShellParameters& params) {
     return Handle{info.hProcess};
 }
 
+Handle open_process(DWORD id, DWORD permissions) {
+    Handle process{OpenProcess(permissions, FALSE, id)};
+    if (!process.is_valid()) {
+        throw error::windows(GetLastError(), "OpenProcess");
+    }
+    return process;
+}
+
+class PathBuffer {
+public:
+    PathBuffer() : m_size{min_size} { m_data.resize(m_size); }
+
+    DWORD get_size() const { return m_size; }
+
+    wchar_t* get_data() { return m_data.data(); }
+
+    void grow() {
+        if (m_size < min_size) {
+            m_size = min_size;
+        } else {
+            // Check if we can still multiply by two.
+            if (std::numeric_limits<decltype(m_size)>::max() - m_size < m_size)
+                throw std::range_error{"Path buffer is too large"};
+            m_size *= 2;
+        }
+        m_data.resize(m_size);
+    }
+
+private:
+    static constexpr DWORD min_size = MAX_PATH;
+
+    DWORD m_size;
+    std::vector<wchar_t> m_data;
+};
+
+std::string get_current_exe_path(PathBuffer& buffer) {
+    SetLastError(ERROR_SUCCESS);
+
+    const auto ec = ::GetModuleFileNameW(NULL, buffer.get_data(), buffer.get_size());
+
+    if (ec == 0) {
+        throw error::windows(GetLastError(), "GetModuleFileNameW");
+    }
+
+    if (ec == buffer.get_size() && GetLastError() == ERROR_INSUFFICIENT_BUFFER) {
+        buffer.grow();
+        return get_current_exe_path(buffer);
+    }
+
+    return narrow(buffer.get_data());
+}
+
+std::string get_current_exe_path() {
+    PathBuffer buffer;
+    return get_current_exe_path(buffer);
+}
+
+std::string get_exe_path(const Handle& process, PathBuffer& buffer) {
+    auto size = buffer.get_size();
+
+    const auto ec = ::QueryFullProcessImageNameW(process.get(), 0, buffer.get_data(), &size);
+
+    if (ec != 0) {
+        return narrow(buffer.get_data());
+    }
+
+    if (GetLastError() == ERROR_INSUFFICIENT_BUFFER) {
+        buffer.grow();
+        return get_exe_path(process, buffer);
+    }
+
+    throw error::windows(GetLastError(), "QueryFullProcessImageNameW");
+}
+
+std::string get_exe_path(const Handle& process) {
+    PathBuffer buffer;
+    return get_exe_path(process, buffer);
+}
+
 } // namespace
 
 ProcessParameters::ProcessParameters(ProcessParameters&& other) BOOST_NOEXCEPT_OR_NOTHROW
@@ -214,6 +294,26 @@ Process Process::shell(const ShellParameters& params) {
 Process Process::shell(const CommandLine& cmd_line) {
     ShellParameters params{cmd_line};
     return shell(params);
+}
+
+Process Process::current() {
+    return Process{::GetCurrentProcessId(), Handle{::GetCurrentProcess()}};
+}
+
+Process Process::open(DWORD id, DWORD permissions) {
+    return Process{id, open_process(id, permissions)};
+}
+
+Process Process::open_r(DWORD id) {
+    return open(id, read_permissions());
+}
+
+DWORD Process::default_permissions() {
+    return PROCESS_QUERY_INFORMATION;
+}
+
+DWORD Process::read_permissions() {
+    return default_permissions() | PROCESS_VM_READ;
 }
 
 Process::Process(Process&& other) BOOST_NOEXCEPT_OR_NOTHROW {
@@ -287,41 +387,20 @@ int Process::get_exit_code() const {
     return static_cast<int>(ec);
 }
 
+std::string Process::get_exe_path() const {
+    if (m_handle.get() == ::GetCurrentProcess()) {
+        return get_current_exe_path();
+    } else {
+        return winapi::get_exe_path(m_handle);
+    }
+}
+
 HMODULE Process::get_exe_module() {
     const auto module = ::GetModuleHandleW(NULL);
     if (module == NULL) {
         throw error::windows(GetLastError(), "GetModuleHandleW");
     }
     return module;
-}
-
-std::string Process::get_exe_path() {
-    BOOST_STATIC_CONSTEXPR std::size_t init_buffer_size = MAX_PATH;
-    static_assert(init_buffer_size > 0, "init_buffer_size must be positive");
-
-    std::vector<wchar_t> buffer;
-    buffer.resize(init_buffer_size);
-
-    while (true) {
-        SetLastError(ERROR_SUCCESS);
-
-        if (buffer.size() > std::numeric_limits<DWORD>::max())
-            throw std::range_error{"Path buffer is too large"};
-        const auto nch =
-            ::GetModuleFileNameW(NULL, buffer.data(), static_cast<DWORD>(buffer.size()));
-
-        if (nch == 0) {
-            throw error::windows(GetLastError(), "GetModuleFileNameW");
-        }
-
-        if (nch == buffer.size() && GetLastError() == ERROR_INSUFFICIENT_BUFFER) {
-            buffer.resize(2 * buffer.size());
-            continue;
-        }
-
-        buffer.resize(nch);
-        return narrow(buffer);
-    }
 }
 
 std::string Process::get_resource_string(uint32_t id) {
@@ -363,5 +442,9 @@ Resource Process::get_resource(uint32_t id) {
 
     return {data, nb};
 }
+
+Process::Process(Handle&& handle) : Process{::GetProcessId(handle.get()), std::move(handle)} {}
+
+Process::Process(ID id, Handle&& handle) : m_id{id}, m_handle{std::move(handle)} {}
 
 } // namespace winapi

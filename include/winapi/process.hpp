@@ -69,6 +69,8 @@ inline void swap(ShellParameters& a, ShellParameters& b) BOOST_NOEXCEPT_OR_NOTHR
 
 class Process {
 public:
+    using ID = DWORD;
+
     static Process create(ProcessParameters);
     static Process create(const CommandLine&);
     static Process create(const CommandLine&, process::IO);
@@ -76,11 +78,21 @@ public:
     static Process shell(const ShellParameters&);
     static Process shell(const CommandLine&);
 
+    static Process current();
+    static Process open(ID, DWORD permissions = default_permissions());
+    static Process open_r(ID);
+
+    static DWORD default_permissions();
+    static DWORD read_permissions();
+
     // VS 2013 won't generate these automatically.
     Process(Process&&) BOOST_NOEXCEPT_OR_NOTHROW;
     Process& operator=(Process) BOOST_NOEXCEPT_OR_NOTHROW;
     void swap(Process& other) BOOST_NOEXCEPT_OR_NOTHROW;
     Process(const Process&) = delete;
+
+    ID get_id() const { return m_id; }
+    const Handle& get_handle() const { return m_handle; }
 
     bool is_running() const;
     void wait() const;
@@ -88,16 +100,18 @@ public:
     void shut_down(int ec = 0) const;
     int get_exit_code() const;
 
-    static std::string get_exe_path();
+    std::string get_exe_path() const;
 
     static Resource get_resource(uint32_t id);
     static std::string get_resource_string(uint32_t id);
 
 private:
-    explicit Process(Handle&& handle) : m_handle(std::move(handle)) {}
+    explicit Process(Handle&& handle);
+    Process(ID, Handle&& handle);
 
     static HMODULE get_exe_module();
 
+    ID m_id;
     Handle m_handle;
 };
 
