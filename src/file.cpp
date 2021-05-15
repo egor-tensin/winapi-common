@@ -58,7 +58,7 @@ private:
     CreateFileParams() = default;
 };
 
-Handle open_file(const std::wstring& path, const CreateFileParams& params) {
+File open_file(const std::wstring& path, const CreateFileParams& params) {
     SECURITY_ATTRIBUTES attributes;
     std::memset(&attributes, 0, sizeof(attributes));
     attributes.nLength = sizeof(attributes);
@@ -76,7 +76,7 @@ Handle open_file(const std::wstring& path, const CreateFileParams& params) {
         throw error::windows(GetLastError(), "CreateFileW");
     }
 
-    return Handle{handle};
+    return File{Handle{handle}};
 }
 
 void remove_file(const std::wstring& path) {
@@ -89,20 +89,36 @@ void remove_file(const std::wstring& path) {
 
 } // namespace
 
-Handle File::open_r(const std::string& path) {
+File File::open_r(const std::string& path) {
     return open_file(to_system_path(path), CreateFileParams::read());
 }
 
-Handle File::open_r(const CanonicalPath& path) {
+File File::open_r(const CanonicalPath& path) {
     return open_file(to_system_path(path), CreateFileParams::read());
 }
 
-Handle File::open_read_attributes(const std::string& path) {
+File File::open_read_attributes(const std::string& path) {
     return open_file(to_system_path(path), CreateFileParams::read_attributes());
 }
 
-Handle File::open_read_attributes(const CanonicalPath& path) {
+File File::open_read_attributes(const CanonicalPath& path) {
     return open_file(to_system_path(path), CreateFileParams::read_attributes());
+}
+
+File File::open_w(const std::string& path) {
+    return open_file(to_system_path(path), CreateFileParams::write());
+}
+
+File File::open_w(const CanonicalPath& path) {
+    return open_file(to_system_path(path), CreateFileParams::write());
+}
+
+void File::remove(const std::string& path) {
+    remove_file(to_system_path(path));
+}
+
+void File::remove(const CanonicalPath& path) {
+    remove_file(to_system_path(path));
 }
 
 std::size_t File::get_size() const {
@@ -127,22 +143,6 @@ File::ID File::query_id() const {
         throw error::windows(GetLastError(), "GetFileInformationByHandleEx");
 
     return {id};
-}
-
-Handle File::open_w(const std::string& path) {
-    return open_file(to_system_path(path), CreateFileParams::write());
-}
-
-Handle File::open_w(const CanonicalPath& path) {
-    return open_file(to_system_path(path), CreateFileParams::write());
-}
-
-void File::remove(const std::string& path) {
-    remove_file(to_system_path(path));
-}
-
-void File::remove(const CanonicalPath& path) {
-    remove_file(to_system_path(path));
 }
 
 } // namespace winapi

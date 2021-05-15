@@ -21,7 +21,7 @@ namespace winapi {
 
 bool operator==(const FILE_ID_128& a, const FILE_ID_128& b);
 
-class File : private Handle {
+class File : public Handle {
 public:
     struct ID {
         const FILE_ID_INFO impl;
@@ -32,22 +32,17 @@ public:
         }
     };
 
-    static Handle open_r(const std::string&);
-    static Handle open_r(const CanonicalPath&);
-    static Handle open_read_attributes(const std::string&);
-    static Handle open_read_attributes(const CanonicalPath&);
-    static Handle open_w(const std::string&);
-    static Handle open_w(const CanonicalPath&);
+    static File open_r(const std::string&);
+    static File open_r(const CanonicalPath&);
+    static File open_read_attributes(const std::string&);
+    static File open_read_attributes(const CanonicalPath&);
+    static File open_w(const std::string&);
+    static File open_w(const CanonicalPath&);
 
     static void remove(const std::string&);
     static void remove(const CanonicalPath&);
 
     explicit File(Handle&& handle) : Handle(std::move(handle)) {}
-
-    using Handle::close;
-
-    using Handle::read;
-    using Handle::write;
 
     std::size_t get_size() const;
 
