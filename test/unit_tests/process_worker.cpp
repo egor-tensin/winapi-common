@@ -85,9 +85,9 @@ void check_std_handles_different(Worker& worker) {
 
 void check_write(Worker& worker) {
     const auto handles = worker.test_write();
-    BOOST_TEST(!Handle::is_invalid(handles.in));
-    BOOST_TEST(!Handle::is_invalid(handles.out));
-    BOOST_TEST(!Handle::is_invalid(handles.err));
+    BOOST_TEST(Handle::is_valid(handles.in));
+    BOOST_TEST(Handle::is_valid(handles.out));
+    BOOST_TEST(Handle::is_valid(handles.err));
 }
 
 void check_redirected_output(const Buffer& buffer, const std::vector<std::string>& expected_lines) {

@@ -52,12 +52,12 @@ void Handle::swap(Handle& other) BOOST_NOEXCEPT_OR_NOTHROW {
     swap(m_impl, other.m_impl);
 }
 
-bool Handle::is_invalid() const {
-    return !m_impl || is_invalid(m_impl.get());
+bool Handle::is_valid() const {
+    return m_impl && is_valid(m_impl.get());
 }
 
-bool Handle::is_invalid(HANDLE handle) {
-    return handle == NULL || handle == INVALID_HANDLE_VALUE;
+bool Handle::is_valid(HANDLE handle) {
+    return handle != NULL && handle != INVALID_HANDLE_VALUE;
 }
 
 void Handle::close() {
@@ -149,7 +149,7 @@ void Handle::inherit(bool yes) const {
 }
 
 void Handle::Close::operator()(HANDLE impl) const {
-    if (is_invalid(impl) || is_std_handle(impl))
+    if (!is_valid(impl) || is_std_handle(impl))
         return;
     const auto ret = ::CloseHandle(impl);
     assert(ret);

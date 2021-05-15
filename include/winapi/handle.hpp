@@ -33,8 +33,8 @@ public:
 
     explicit operator HANDLE() const { return ptr(); }
 
-    bool is_invalid() const;
-    static bool is_invalid(HANDLE);
+    bool is_valid() const;
+    static bool is_valid(HANDLE);
 
     void close();
 
