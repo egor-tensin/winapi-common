@@ -17,6 +17,13 @@ target_link_libraries(winapi_common PUBLIC Boost::disable_autolinking Boost::boo
 install(TARGETS winapi_common ARCHIVE DESTINATION lib)
 install(DIRECTORY include/winapi DESTINATION include)
 
+if(MINGW)
+    # FILE_ID_INFO and friends require at least 0x0602:
+    target_compile_definitions(winapi_common PUBLIC
+        NTDDI_VERSION=NTDDI_WIN8
+        _WIN32_WINNT=_WIN32_WINNT_WIN8)
+endif()
+
 if(WINAPI_COMMON_TESTS)
     add_subdirectory(test)
 endif()

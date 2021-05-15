@@ -9,7 +9,10 @@
 #include <winapi/path.hpp>
 #include <winapi/utf8.hpp>
 
+#include <cstddef>
+#include <cstdint>
 #include <cstring>
+#include <stdexcept>
 #include <string>
 
 namespace winapi {
@@ -29,6 +32,13 @@ struct CreateFileParams {
         params.dwDesiredAccess = GENERIC_READ;
         params.dwShareMode = FILE_SHARE_READ;
         params.dwCreationDisposition = OPEN_EXISTING;
+        return params;
+    }
+
+    static CreateFileParams read_attributes() {
+        auto params = read();
+        params.dwDesiredAccess = FILE_READ_ATTRIBUTES;
+        params.dwShareMode = FILE_SHARE_READ | FILE_SHARE_WRITE;
         return params;
     }
 
@@ -85,6 +95,38 @@ Handle File::open_r(const std::string& path) {
 
 Handle File::open_r(const CanonicalPath& path) {
     return open_file(to_system_path(path), CreateFileParams::read());
+}
+
+Handle File::open_read_attributes(const std::string& path) {
+    return open_file(to_system_path(path), CreateFileParams::read_attributes());
+}
+
+Handle File::open_read_attributes(const CanonicalPath& path) {
+    return open_file(to_system_path(path), CreateFileParams::read_attributes());
+}
+
+std::size_t File::get_size() const {
+    LARGE_INTEGER size;
+
+    if (!GetFileSizeEx(get(), &size))
+        throw error::windows(GetLastError(), "GetFileSizeEx");
+
+    if (size.QuadPart < 0 || size.QuadPart > SIZE_MAX)
+        throw std::runtime_error{"invalid file size"};
+    return static_cast<std::size_t>(size.QuadPart);
+}
+
+bool operator==(const FILE_ID_128& a, const FILE_ID_128& b) {
+    return 0 == std::memcmp(a.Identifier, b.Identifier, sizeof(a.Identifier));
+}
+
+File::ID File::query_id() const {
+    FILE_ID_INFO id;
+
+    if (!GetFileInformationByHandleEx(get(), FileIdInfo, &id, sizeof(id)))
+        throw error::windows(GetLastError(), "GetFileInformationByHandleEx");
+
+    return {id};
 }
 
 Handle File::open_w(const std::string& path) {
