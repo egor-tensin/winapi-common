@@ -22,9 +22,9 @@ public:
 
     Buffer() = default;
 
-    Buffer(std::initializer_list<unsigned char> lst) : Parent(lst) {}
+    Buffer(std::initializer_list<unsigned char> lst) : Parent{lst} {}
 
-    explicit Buffer(Parent&& src) : Parent(std::move(src)) {}
+    explicit Buffer(Parent&& src) : Parent{std::move(src)} {}
 
     template <typename CharT>
     explicit Buffer(const std::basic_string<CharT>& src) {

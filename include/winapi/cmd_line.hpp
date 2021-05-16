@@ -5,8 +5,6 @@
 
 #pragma once
 
-#include <boost/config.hpp>
-
 #include <string>
 #include <utility>
 #include <vector>
@@ -24,10 +22,10 @@ public:
     CommandLine() = default;
 
     explicit CommandLine(const std::string& argv0, const std::vector<std::string>& args = {})
-        : m_argv0(argv0), m_args(args) {}
+        : m_argv0{argv0}, m_args{args} {}
 
     explicit CommandLine(std::string&& argv0, std::vector<std::string>&& args = {})
-        : m_argv0(std::move(argv0)), m_args(std::move(args)) {}
+        : m_argv0{std::move(argv0)}, m_args{std::move(args)} {}
 
     explicit CommandLine(const std::vector<std::string>& argv);
 
@@ -50,7 +48,7 @@ public:
     std::vector<std::string> get_argv() const;
 
 private:
-    static BOOST_CONSTEXPR char token_sep() { return ' '; }
+    static constexpr char token_sep() { return ' '; }
 
     std::string escape_argv0() const { return escape(get_argv0()); }
 

@@ -10,7 +10,7 @@
 namespace worker {
 namespace test_data {
 
-BOOST_STATIC_CONSTEXPR auto str = "Test output.";
+static constexpr auto str = "Test output.";
 
 inline std::string out() {
     return "stdout: " + std::string{str};

@@ -7,8 +7,6 @@
 
 #include "handle.hpp"
 
-#include <boost/config.hpp>
-
 #include <cstddef>
 #include <memory>
 #include <string>
@@ -22,12 +20,6 @@ public:
     static SharedMemory create(const std::string& name, std::size_t nb);
     static SharedMemory open(const std::string& name);
 
-    // VS 2013 won't generate these automatically:
-    SharedMemory(SharedMemory&&) BOOST_NOEXCEPT_OR_NOTHROW;
-    SharedMemory& operator=(SharedMemory) BOOST_NOEXCEPT_OR_NOTHROW;
-    void swap(SharedMemory&) BOOST_NOEXCEPT_OR_NOTHROW;
-    SharedMemory(const SharedMemory&) = delete;
-
     void* get() const { return m_addr.get(); }
     void* ptr() const { return get(); }
 
@@ -38,15 +30,11 @@ private:
 
     SharedMemory() = default;
 
-    SharedMemory(Handle&& handle, void* addr) : m_handle(std::move(handle)), m_addr(addr) {}
+    SharedMemory(Handle&& handle, void* addr) : m_handle{std::move(handle)}, m_addr{addr} {}
 
     Handle m_handle;
     std::unique_ptr<void, Unmap> m_addr;
 };
-
-inline void swap(SharedMemory& a, SharedMemory& b) BOOST_NOEXCEPT_OR_NOTHROW {
-    a.swap(b);
-}
 
 template <typename T>
 class SharedObject {
@@ -66,21 +54,8 @@ public:
         return obj;
     }
 
-    SharedObject(SharedObject&& other) BOOST_NOEXCEPT_OR_NOTHROW
-        : m_shmem(std::move(other.m_shmem)),
-          m_destruct(other.m_destruct) {}
-
-    SharedObject& operator=(SharedObject other) BOOST_NOEXCEPT_OR_NOTHROW {
-        swap(other);
-        return *this;
-    }
-
-    void swap(SharedObject& other) BOOST_NOEXCEPT_OR_NOTHROW {
-        using std::swap;
-        swap(m_shmem, other.m_shmem);
-        swap(m_destruct, other.m_destruct);
-    }
-
+    SharedObject(SharedObject&& other) noexcept = default;
+    SharedObject& operator=(const SharedObject& other) noexcept = default;
     SharedObject(const SharedObject&) = delete;
 
     ~SharedObject() {
@@ -103,18 +78,4 @@ private:
     bool m_destruct = false;
 };
 
-template <typename T>
-inline void swap(SharedObject<T>& a, SharedObject<T>& b) BOOST_NOEXCEPT_OR_NOTHROW {
-    a.swap(b);
-}
-
 } // namespace winapi
-
-namespace std {
-
-template <>
-inline void swap(winapi::SharedMemory& a, winapi::SharedMemory& b) BOOST_NOEXCEPT_OR_NOTHROW {
-    a.swap(b);
-}
-
-} // namespace std

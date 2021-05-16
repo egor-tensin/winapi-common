@@ -28,9 +28,9 @@ class Buffer {
 public:
     typedef CONSOLE_SCREEN_BUFFER_INFO Info;
 
-    Buffer() : m_handle(winapi::Handle::std_out()), m_info(get_info(m_handle)) {}
+    Buffer() : m_handle{winapi::Handle::std_out()}, m_info{get_info(m_handle)} {}
 
-    Buffer(winapi::Handle&& handle) : m_handle(std::move(handle)), m_info(get_info(m_handle)) {}
+    Buffer(winapi::Handle&& handle) : m_handle{std::move(handle)}, m_info{get_info(m_handle)} {}
 
     int16_t get_columns() const { return m_info.dwSize.X; }
 

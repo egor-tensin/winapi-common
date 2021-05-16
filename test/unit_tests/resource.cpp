@@ -8,7 +8,6 @@
 #include <winapi/process.hpp>
 #include <winapi/utf8.hpp>
 
-#include <boost/config.hpp>
 #include <boost/format.hpp>
 #include <boost/test/unit_test.hpp>
 
@@ -39,13 +38,13 @@ BOOST_TEST_SPECIALIZED_COLLECTION_COMPARE(Buffer);
 BOOST_AUTO_TEST_SUITE(resource_tests)
 
 BOOST_AUTO_TEST_CASE(get_string) {
-    BOOST_STATIC_CONSTEXPR auto expected = "This is a test resource string!";
+    static constexpr auto expected = "This is a test resource string!";
     const auto actual = Process::get_resource_string(IDS_TEST_STRING);
     BOOST_TEST(actual == expected);
 }
 
 BOOST_AUTO_TEST_CASE(get_string_wide) {
-    BOOST_STATIC_CONSTEXPR auto expected = "This is another test string, wide this time.";
+    static constexpr auto expected = "This is another test string, wide this time.";
     const auto actual = Process::get_resource_string(IDS_TEST_STRING_WIDE);
     BOOST_TEST(actual == expected);
 }

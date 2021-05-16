@@ -9,6 +9,7 @@
 
 #include <windows.h>
 
+#include <cstddef>
 #include <limits>
 #include <stdexcept>
 #include <string>
@@ -18,7 +19,7 @@ namespace winapi {
 namespace {
 
 std::wstring do_canonicalize(const std::wstring& path) {
-    BOOST_STATIC_CONSTEXPR std::size_t init_buffer_size = MAX_PATH;
+    static constexpr std::size_t init_buffer_size = MAX_PATH;
     static_assert(init_buffer_size > 0, "init_buffer_size must be positive");
 
     std::vector<wchar_t> buffer;

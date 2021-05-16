@@ -7,8 +7,6 @@
 
 #include "buffer.hpp"
 
-#include <boost/config.hpp>
-
 #include <windows.h>
 
 #include <cstddef>
@@ -22,11 +20,6 @@ class Handle {
 public:
     Handle() = default;
     explicit Handle(HANDLE);
-
-    Handle(Handle&& other) BOOST_NOEXCEPT_OR_NOTHROW;
-    Handle& operator=(Handle other) BOOST_NOEXCEPT_OR_NOTHROW;
-    void swap(Handle& other) BOOST_NOEXCEPT_OR_NOTHROW;
-    Handle(const Handle&) = delete;
 
     HANDLE get() const { return m_impl.get(); }
     HANDLE ptr() const { return get(); }
@@ -45,7 +38,7 @@ public:
 
     Buffer read() const;
 
-    BOOST_STATIC_CONSTEXPR std::size_t max_chunk_size = 16 * 1024;
+    static constexpr std::size_t max_chunk_size = 16 * 1024;
     bool read_chunk(Buffer& read_chunk) const;
 
     void write(const void*, std::size_t nb) const;
@@ -67,17 +60,4 @@ private:
     std::unique_ptr<void, Close> m_impl;
 };
 
-inline void swap(Handle& a, Handle& b) BOOST_NOEXCEPT_OR_NOTHROW {
-    a.swap(b);
-}
-
 } // namespace winapi
-
-namespace std {
-
-template <>
-inline void swap(winapi::Handle& a, winapi::Handle& b) BOOST_NOEXCEPT_OR_NOTHROW {
-    a.swap(b);
-}
-
-} // namespace std

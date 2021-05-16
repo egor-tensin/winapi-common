@@ -8,8 +8,6 @@
 #include <winapi/handle.hpp>
 #include <winapi/utils.hpp>
 
-#include <boost/config.hpp>
-
 #include <windows.h>
 
 #include <cassert>
@@ -36,21 +34,7 @@ bool is_std_handle(HANDLE handle) {
 
 } // namespace
 
-Handle::Handle(HANDLE impl) : m_impl(impl) {}
-
-Handle::Handle(Handle&& other) BOOST_NOEXCEPT_OR_NOTHROW {
-    swap(other);
-}
-
-Handle& Handle::operator=(Handle other) BOOST_NOEXCEPT_OR_NOTHROW {
-    swap(other);
-    return *this;
-}
-
-void Handle::swap(Handle& other) BOOST_NOEXCEPT_OR_NOTHROW {
-    using std::swap;
-    swap(m_impl, other.m_impl);
-}
+Handle::Handle(HANDLE impl) : m_impl{impl} {}
 
 bool Handle::is_valid() const {
     return m_impl && is_valid(m_impl.get());

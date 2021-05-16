@@ -5,7 +5,6 @@
 
 #include <winapi/shmem.hpp>
 
-#include <boost/config.hpp>
 #include <boost/test/unit_test.hpp>
 
 #include <condition_variable>
@@ -17,11 +16,11 @@ using namespace winapi;
 
 namespace {
 
-BOOST_CONSTEXPR_OR_CONST auto shmem_name = "test-data-struct";
+static constexpr auto shmem_name = "test-data-struct";
 
-BOOST_CONSTEXPR_OR_CONST int32_t main_data = -1;
-BOOST_CONSTEXPR_OR_CONST int32_t setter1_data = 69;
-BOOST_CONSTEXPR_OR_CONST int32_t setter2_data = 420;
+static constexpr int32_t main_data = -1;
+static constexpr int32_t setter1_data = 69;
+static constexpr int32_t setter2_data = 420;
 
 struct DataStruct {
     std::mutex mtx;

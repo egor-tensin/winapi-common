@@ -7,8 +7,6 @@
 
 #include "buffer.hpp"
 
-#include <boost/config.hpp>
-
 #include <windows.h>
 
 #include <cstddef>
@@ -18,7 +16,7 @@ namespace winapi {
 
 class Sid {
 public:
-    BOOST_STATIC_CONSTEXPR std::size_t MAX_SID_SIZE = SECURITY_MAX_SID_SIZE;
+    static constexpr std::size_t MAX_SID_SIZE = SECURITY_MAX_SID_SIZE;
 
     typedef SID Impl;
 

@@ -5,8 +5,6 @@
 
 #pragma once
 
-#include <boost/config.hpp>
-
 #include <windows.h>
 
 #include <cstdint>
@@ -22,7 +20,7 @@ class CategoryWindows : public std::error_category {
 public:
     CategoryWindows() = default;
 
-    const char* name() const BOOST_NOEXCEPT_OR_NOTHROW { return "Windows"; }
+    const char* name() const noexcept { return "Windows"; }
 
     std::string message(int32_t) const;
 };

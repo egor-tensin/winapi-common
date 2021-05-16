@@ -9,8 +9,6 @@
 #include <winapi/utf8.hpp>
 #include <winapi/utils.hpp>
 
-#include <boost/config.hpp>
-
 #include <windows.h>
 
 #include <cstddef>
@@ -68,21 +66,6 @@ SharedMemory SharedMemory::open(const std::string& name) {
     Handle mapping{mapping_impl};
     const auto addr = do_map(mapping);
     return {std::move(mapping), addr};
-}
-
-SharedMemory::SharedMemory(SharedMemory&& other) BOOST_NOEXCEPT_OR_NOTHROW {
-    swap(other);
-}
-
-SharedMemory& SharedMemory::operator=(SharedMemory other) BOOST_NOEXCEPT_OR_NOTHROW {
-    swap(other);
-    return *this;
-}
-
-void SharedMemory::swap(SharedMemory& other) BOOST_NOEXCEPT_OR_NOTHROW {
-    using std::swap;
-    swap(m_handle, other.m_handle);
-    swap(m_addr, other.m_addr);
 }
 
 } // namespace winapi

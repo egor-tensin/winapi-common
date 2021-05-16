@@ -16,7 +16,7 @@ struct Resource {
 
     Resource() = default;
 
-    Resource(const void* data, std::size_t nb) : data(data), nb(nb) {}
+    Resource(const void* data, std::size_t nb) : data{data}, nb{nb} {}
 
     Buffer copy() const { return {data, nb}; }
 

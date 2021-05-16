@@ -7,8 +7,6 @@
 #include <winapi/handle.hpp>
 #include <winapi/pipe.hpp>
 
-#include <boost/config.hpp>
-
 #include <windows.h>
 
 #include <cstring>
@@ -26,7 +24,7 @@ void create_pipe(Handle& read_end, Handle& write_end) {
     attributes.nLength = sizeof(attributes);
     attributes.bInheritHandle = TRUE;
 
-    BOOST_STATIC_CONSTEXPR DWORD buffer_size = 16 * 1024;
+    static constexpr DWORD buffer_size = 16 * 1024;
 
     const auto ret = ::CreatePipe(&read_end_impl, &write_end_impl, &attributes, buffer_size);
 
@@ -42,21 +40,6 @@ void create_pipe(Handle& read_end, Handle& write_end) {
 
 Pipe::Pipe() {
     create_pipe(m_read_end, m_write_end);
-}
-
-Pipe::Pipe(Pipe&& other) BOOST_NOEXCEPT_OR_NOTHROW {
-    swap(other);
-}
-
-Pipe& Pipe::operator=(Pipe other) BOOST_NOEXCEPT_OR_NOTHROW {
-    swap(other);
-    return *this;
-}
-
-void Pipe::swap(Pipe& other) BOOST_NOEXCEPT_OR_NOTHROW {
-    using std::swap;
-    swap(m_read_end, other.m_read_end);
-    swap(m_write_end, other.m_write_end);
 }
 
 } // namespace winapi

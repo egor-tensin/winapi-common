@@ -11,8 +11,6 @@
 #include <winapi/resource.hpp>
 #include <winapi/utf8.hpp>
 
-#include <boost/config.hpp>
-
 // clang-format off
 #include <windows.h>
 #include <shellapi.h>
@@ -61,7 +59,7 @@ Handle create_process(ProcessParameters& params) {
      *
      * Another useful link is https://ikriv.com/dev/cpp/ConsoleProxy/flags.
      */
-    BOOST_STATIC_CONSTEXPR DWORD default_dwCreationFlags = CREATE_UNICODE_ENVIRONMENT;
+    static constexpr DWORD default_dwCreationFlags = CREATE_UNICODE_ENVIRONMENT;
 
     STARTUPINFOW startup_info;
     std::memset(&startup_info, 0, sizeof(startup_info));
@@ -125,7 +123,7 @@ Handle shell_execute(const ShellParameters& params) {
     const auto lpFile = widen(params.cmd_line.get_argv0());
     const auto lpParameters = widen(params.cmd_line.args_to_string());
 
-    BOOST_STATIC_CONSTEXPR uint32_t default_fMask = SEE_MASK_NOCLOSEPROCESS | SEE_MASK_FLAG_NO_UI;
+    static constexpr uint32_t default_fMask = SEE_MASK_NOCLOSEPROCESS | SEE_MASK_FLAG_NO_UI;
 
     auto fMask = default_fMask;
     auto nShow = SW_SHOWDEFAULT;
@@ -240,38 +238,6 @@ std::string get_exe_path(const Handle& process) {
 
 } // namespace
 
-ProcessParameters::ProcessParameters(ProcessParameters&& other) BOOST_NOEXCEPT_OR_NOTHROW
-    : cmd_line(std::move(other.cmd_line)),
-      io(std::move(other.io)),
-      console_mode(std::move(other.console_mode)) {}
-
-ProcessParameters& ProcessParameters::operator=(ProcessParameters other) BOOST_NOEXCEPT_OR_NOTHROW {
-    swap(other);
-    return *this;
-}
-
-void ProcessParameters::swap(ProcessParameters& other) BOOST_NOEXCEPT_OR_NOTHROW {
-    using std::swap;
-    swap(cmd_line, other.cmd_line);
-    swap(io, other.io);
-    swap(console_mode, other.console_mode);
-}
-
-ShellParameters::ShellParameters(ShellParameters&& other) BOOST_NOEXCEPT_OR_NOTHROW
-    : ProcessParameters(std::move(other)),
-      verb(std::move(verb)) {}
-
-ShellParameters& ShellParameters::operator=(ShellParameters other) BOOST_NOEXCEPT_OR_NOTHROW {
-    swap(other);
-    return *this;
-}
-
-void ShellParameters::swap(ShellParameters& other) BOOST_NOEXCEPT_OR_NOTHROW {
-    using std::swap;
-    ProcessParameters::swap(other);
-    swap(verb, other.verb);
-}
-
 Process Process::create(ProcessParameters params) {
     return Process{create_process(params)};
 }
@@ -314,20 +280,6 @@ DWORD Process::default_permissions() {
 
 DWORD Process::read_permissions() {
     return default_permissions() | PROCESS_VM_READ;
-}
-
-Process::Process(Process&& other) BOOST_NOEXCEPT_OR_NOTHROW {
-    swap(other);
-}
-
-Process& Process::operator=(Process other) BOOST_NOEXCEPT_OR_NOTHROW {
-    swap(other);
-    return *this;
-}
-
-void Process::swap(Process& other) BOOST_NOEXCEPT_OR_NOTHROW {
-    using std::swap;
-    swap(m_handle, other.m_handle);
 }
 
 bool Process::is_running() const {

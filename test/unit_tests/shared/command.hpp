@@ -9,7 +9,6 @@
 
 #include <winapi/shmem.hpp>
 
-#include <boost/config.hpp>
 #include <boost/interprocess/sync/interprocess_condition.hpp>
 #include <boost/interprocess/sync/interprocess_mutex.hpp>
 #include <boost/interprocess/sync/scoped_lock.hpp>
@@ -29,7 +28,7 @@ struct StdHandles {
     HANDLE err;
 };
 
-BOOST_STATIC_CONSTEXPR auto COMMAND_SHMEM_NAME = "shmem-test-cmd";
+static constexpr auto COMMAND_SHMEM_NAME = "shmem-test-cmd";
 
 class Command {
 public:

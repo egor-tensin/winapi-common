@@ -9,7 +9,6 @@
 #include <winapi/utils.hpp>
 
 #include <boost/algorithm/string.hpp>
-#include <boost/config.hpp>
 
 // clang-format off
 #include <windows.h>
@@ -87,11 +86,11 @@ CommandLine CommandLine::from_main(int argc, wchar_t* argv[]) {
     return CommandLine{narrow_all(argc, argv)};
 }
 
-CommandLine::CommandLine(const std::vector<std::string>& argv) : m_args(argv) {
+CommandLine::CommandLine(const std::vector<std::string>& argv) : m_args{argv} {
     m_argv0 = split_argv0(m_args);
 }
 
-CommandLine::CommandLine(std::vector<std::string>&& argv) : m_args(std::move(argv)) {
+CommandLine::CommandLine(std::vector<std::string>&& argv) : m_args{std::move(argv)} {
     m_argv0 = split_argv0(m_args);
 }
 
@@ -128,7 +127,7 @@ std::string CommandLine::escape(const std::string& arg) {
 }
 
 std::string CommandLine::escape_cmd(const std::string& arg) {
-    BOOST_STATIC_CONSTEXPR auto escape_symbol = '^';
+    static constexpr auto escape_symbol = '^';
     static const std::string dangerous_symbols{"^!\"%&()<>|"};
 
     auto safe = escape(arg);

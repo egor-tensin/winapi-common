@@ -42,7 +42,7 @@ public:
     static void remove(const std::string&);
     static void remove(const CanonicalPath&);
 
-    explicit File(Handle&& handle) : Handle(std::move(handle)) {}
+    explicit File(Handle&& handle) : Handle{std::move(handle)} {}
 
     std::size_t get_size() const;
 

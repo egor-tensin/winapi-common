@@ -10,7 +10,6 @@
 #include "process_io.hpp"
 #include "resource.hpp"
 
-#include <boost/config.hpp>
 #include <boost/optional.hpp>
 
 #include <windows.h>
@@ -28,22 +27,12 @@ struct ProcessParameters {
         ConsoleNew,
     };
 
-    explicit ProcessParameters(const CommandLine& cmd_line) : cmd_line(cmd_line) {}
-
-    // VS 2013 won't generate these automatically.
-    ProcessParameters(ProcessParameters&&) BOOST_NOEXCEPT_OR_NOTHROW;
-    ProcessParameters& operator=(ProcessParameters) BOOST_NOEXCEPT_OR_NOTHROW;
-    void swap(ProcessParameters& other) BOOST_NOEXCEPT_OR_NOTHROW;
-    ProcessParameters(const ProcessParameters&) = delete;
+    explicit ProcessParameters(const CommandLine& cmd_line) : cmd_line{cmd_line} {}
 
     CommandLine cmd_line;
     boost::optional<process::IO> io;
     ConsoleCreationMode console_mode = ConsoleNew;
 };
-
-inline void swap(ProcessParameters& a, ProcessParameters& b) BOOST_NOEXCEPT_OR_NOTHROW {
-    a.swap(b);
-}
 
 struct ShellParameters : ProcessParameters {
     static ShellParameters runas(const CommandLine& cmd_line) {
@@ -52,20 +41,10 @@ struct ShellParameters : ProcessParameters {
         return params;
     }
 
-    explicit ShellParameters(const CommandLine& cmd_line) : ProcessParameters(cmd_line) {}
-
-    // VS 2013 won't generate these automatically.
-    ShellParameters(ShellParameters&&) BOOST_NOEXCEPT_OR_NOTHROW;
-    ShellParameters& operator=(ShellParameters) BOOST_NOEXCEPT_OR_NOTHROW;
-    void swap(ShellParameters& other) BOOST_NOEXCEPT_OR_NOTHROW;
-    ShellParameters(const ShellParameters&) = delete;
+    explicit ShellParameters(const CommandLine& cmd_line) : ProcessParameters{cmd_line} {}
 
     boost::optional<std::string> verb;
 };
-
-inline void swap(ShellParameters& a, ShellParameters& b) BOOST_NOEXCEPT_OR_NOTHROW {
-    a.swap(b);
-}
 
 class Process {
 public:
@@ -84,12 +63,6 @@ public:
 
     static DWORD default_permissions();
     static DWORD read_permissions();
-
-    // VS 2013 won't generate these automatically.
-    Process(Process&&) BOOST_NOEXCEPT_OR_NOTHROW;
-    Process& operator=(Process) BOOST_NOEXCEPT_OR_NOTHROW;
-    void swap(Process& other) BOOST_NOEXCEPT_OR_NOTHROW;
-    Process(const Process&) = delete;
 
     ID get_id() const { return m_id; }
     const Handle& get_handle() const { return m_handle; }
@@ -115,28 +88,4 @@ private:
     Handle m_handle;
 };
 
-inline void swap(Process& a, Process& b) BOOST_NOEXCEPT_OR_NOTHROW {
-    a.swap(b);
-}
-
 } // namespace winapi
-
-namespace std {
-
-template <>
-inline void swap(winapi::ProcessParameters& a,
-                 winapi::ProcessParameters& b) BOOST_NOEXCEPT_OR_NOTHROW {
-    a.swap(b);
-}
-
-template <>
-inline void swap(winapi::ShellParameters& a, winapi::ShellParameters& b) BOOST_NOEXCEPT_OR_NOTHROW {
-    a.swap(b);
-}
-
-template <>
-inline void swap(winapi::Process& a, winapi::Process& b) BOOST_NOEXCEPT_OR_NOTHROW {
-    a.swap(b);
-}
-
-} // namespace std
