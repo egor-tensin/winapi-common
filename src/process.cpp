@@ -28,7 +28,7 @@
 namespace winapi {
 namespace {
 
-typedef std::vector<wchar_t> EscapedCommandLine;
+using EscapedCommandLine = std::vector<wchar_t>;
 
 EscapedCommandLine escape_command_line(const CommandLine& cmd_line) {
     const auto unicode_cmd_line = widen(cmd_line.to_string());

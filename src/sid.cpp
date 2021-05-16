@@ -23,7 +23,7 @@ Sid Sid::well_known(WELL_KNOWN_SID_TYPE type) {
     Buffer buffer;
     buffer.resize(MAX_SID_SIZE);
 
-    DWORD cb = static_cast<DWORD>(buffer.size());
+    auto cb = static_cast<DWORD>(buffer.size());
 
     if (!::CreateWellKnownSid(type, NULL, buffer.data(), &cb))
         throw error::windows(GetLastError(), "CreateWellKnownSid");

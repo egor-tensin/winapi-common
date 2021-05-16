@@ -27,9 +27,7 @@ public:
     explicit CommandLine(std::string&& argv0, std::vector<std::string>&& args = {})
         : m_argv0{std::move(argv0)}, m_args{std::move(args)} {}
 
-    explicit CommandLine(const std::vector<std::string>& argv);
-
-    explicit CommandLine(std::vector<std::string>&& argv);
+    explicit CommandLine(std::vector<std::string> argv);
 
     static std::string escape(const std::string&);
 

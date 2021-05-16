@@ -57,7 +57,7 @@ std::string split_argv0(std::vector<std::string>& argv) {
     if (argv.empty()) {
         throw std::range_error{"argv must contain at least one element"};
     }
-    const auto argv0 = argv[0];
+    auto argv0 = argv[0];
     argv.erase(argv.begin());
     return argv0;
 }
@@ -86,11 +86,7 @@ CommandLine CommandLine::from_main(int argc, wchar_t* argv[]) {
     return CommandLine{narrow_all(argc, argv)};
 }
 
-CommandLine::CommandLine(const std::vector<std::string>& argv) : m_args{argv} {
-    m_argv0 = split_argv0(m_args);
-}
-
-CommandLine::CommandLine(std::vector<std::string>&& argv) : m_args{std::move(argv)} {
+CommandLine::CommandLine(std::vector<std::string> argv) : m_args{std::move(argv)} {
     m_argv0 = split_argv0(m_args);
 }
 
