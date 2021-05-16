@@ -36,7 +36,7 @@ public:
 
     std::string extract() const {
         // Lines are null-terminated, and don't store their lenghts, so...
-        return data();
+        return this->data();
     }
 };
 
@@ -66,7 +66,7 @@ struct StringList : public std::array<String<StringLength>, Length> {
     std::vector<std::string> extract() const {
         std::vector<std::string> dest;
         for (std::size_t i = 0; i < numof_lines; ++i) {
-            dest.emplace_back(at(i).extract());
+            dest.emplace_back(this->at(i).extract());
         }
         return dest;
     }
