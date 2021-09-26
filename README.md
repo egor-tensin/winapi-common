@@ -6,6 +6,21 @@ winapi-common
 C++ wrappers for various common WinAPI entities I've had to use in various
 projects over the years.
 
+Development
+-----------
+
+Build using CMake.
+Depends on Boost.Test and Python 3 for running the tests.
+The project is Windows-only, so building with either MSVC or MinGW-w64 is
+required.
+
+There's a Makefile with useful shortcuts to build the project in the .build/
+directory (defaults to building with MinGW-w64):
+
+    make deps
+    make build
+    make test
+
 License
 -------
 
