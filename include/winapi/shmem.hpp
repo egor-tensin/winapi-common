@@ -15,12 +15,24 @@
 
 namespace winapi {
 
+/** @brief Named shared memory region. */
 class SharedMemory {
 public:
+    /**
+     * Creates a shared memory region.
+     * @param name UTF-8 string.
+     * @param nb   Number of bytes.
+     */
     static SharedMemory create(const std::string& name, std::size_t nb);
+    /**
+     * Opens a shared memory region.
+     * @param name UTF-8 string.
+     */
     static SharedMemory open(const std::string& name);
 
+    /** Get pointer to the data. */
     void* get() const { return m_addr.get(); }
+    /** @overload */
     void* ptr() const { return get(); }
 
 private:
@@ -36,11 +48,17 @@ private:
     std::unique_ptr<void, Unmap> m_addr;
 };
 
+/** @brief Easy way to represent a C++ object as a shared memory region. */
 template <typename T>
 class SharedObject {
 public:
     typedef typename std::aligned_storage<sizeof(T), __alignof(T)>::type AlignedType;
 
+    /**
+     * Create the object & construct a shared memory region to store it.
+     * @param name UTF-8 string, name of the shared memory region.
+     * @param args Arguments to construct the object.
+     */
     template <typename... Args>
     static SharedObject create(const std::string& name, Args&&... args) {
         SharedObject obj{SharedMemory::create(name, sizeof(AlignedType))};
@@ -49,6 +67,10 @@ public:
         return obj;
     }
 
+    /**
+     * Open a shared memory region that stores the object.
+     * @param name UTF-8 string, name of the shared memory region.
+     */
     static SharedObject open(const std::string& name) {
         SharedObject obj{SharedMemory::open(name)};
         return obj;
@@ -64,7 +86,9 @@ public:
         }
     }
 
+    /** Get pointer to the object. */
     T* ptr() const { return reinterpret_cast<T*>(m_shmem.ptr()); }
+    /** Get reference to the object. */
     T& get() const { return *ptr(); }
 
     T* operator->() const { return ptr(); }

@@ -21,6 +21,11 @@ namespace winapi {
 
 bool operator==(const FILE_ID_128& a, const FILE_ID_128& b);
 
+/**
+ * @brief File I/O.
+ *
+ * Easily open, read & write files.
+ */
 class File : public Handle {
 public:
     struct ID {
@@ -32,20 +37,37 @@ public:
         }
     };
 
+    /** Open file for reading. */
     static File open_r(const std::string&);
+    /** @overload */
     static File open_r(const CanonicalPath&);
+    /** Open file for reading (inc. ability to read its attributes). */
     static File open_read_attributes(const std::string&);
+    /** @overload */
     static File open_read_attributes(const CanonicalPath&);
+    /** Open file for writing. */
     static File open_w(const std::string&);
+    /** @overload */
     static File open_w(const CanonicalPath&);
 
+    /** Delete a file. */
     static void remove(const std::string&);
+    /** @overload */
     static void remove(const CanonicalPath&);
 
+    /** Make a File instance from an open handle. */
     explicit File(Handle&& handle) : Handle{std::move(handle)} {}
 
+    /**
+     * Get file size.
+     * @return File size, bytes.
+     */
     std::size_t get_size() const;
 
+    /**
+     * Get file ID.
+     * File ID is a unique representation of a file, suitable for hashing.
+     */
     ID query_id() const;
 };
 

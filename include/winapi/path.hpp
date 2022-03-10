@@ -9,8 +9,10 @@
 
 namespace winapi {
 
+/** @brief Absolute, canonical path. */
 class CanonicalPath {
 public:
+    /** Make an absolute, canonical path. */
     static std::string canonicalize(const std::string&);
 
     explicit CanonicalPath(const std::string&);

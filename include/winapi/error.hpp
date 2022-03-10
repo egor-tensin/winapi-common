@@ -3,6 +3,11 @@
 // For details, see https://github.com/egor-tensin/winapi-common.
 // Distributed under the MIT License.
 
+/**
+ * @file
+ * @brief Make `std::system_error` work with `GetLastError()`.
+ */
+
 #pragma once
 
 #include <windows.h>
@@ -30,6 +35,11 @@ inline const CategoryWindows& category_windows() {
     return instance;
 }
 
+/**
+ * Build a `std::system_error` from the value of `GetLastError()`.
+ * @param code     Value of `GetLastError()`.
+ * @param function Name of the function that failed, like "CreateFile".
+ */
 std::system_error windows(DWORD code, const char* function);
 
 template <typename Ret>

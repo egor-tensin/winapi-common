@@ -11,6 +11,7 @@
 
 namespace winapi {
 
+/** @brief Resources embedded in a PE (Portable Executable). */
 struct Resource {
     // This is just a pointer to static data.
 
@@ -18,6 +19,7 @@ struct Resource {
 
     Resource(const void* data, std::size_t nb) : data{data}, nb{nb} {}
 
+    /** Extract resource data into a Buffer instance. */
     Buffer copy() const { return {data, nb}; }
 
     const void* data = nullptr;
