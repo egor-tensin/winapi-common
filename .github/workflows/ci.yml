@@ -85,3 +85,49 @@ jobs:
             ${{ runner.workspace }}/build/**/*_report.txt
           if-no-files-found: error
         if: always() && runner.os == 'Windows'
+
+  docs:
+    needs: [lint, build]
+    runs-on: ubuntu-latest
+    name: Docs
+    if: github.ref == 'refs/heads/master'
+    env:
+      TOOLSET: mingw
+      PLATFORM: auto
+      CONFIGURATION: Debug
+      BOOST_VERSION: 1.65.0
+      CMAKE_FLAGS: -D WINAPI_COMMON_TESTS=OFF
+    steps:
+      # This is rather stupid. In order to build Doxygen docs, I need a working
+      # CMake build directory, so I assume that means I need to pretty much
+      # build the project. TODO: research if this is possible without having a
+      # Doxyfile.
+      - name: Checkout
+        uses: actions/checkout@v2
+        with:
+          submodules: recursive
+      - name: Cache Boost
+        uses: actions/cache@v2
+        with:
+          path: '${{ runner.workspace }}/build/boost_*.tar.gz'
+          key: 'boost_${{ env.BOOST_VERSION }}'
+      - name: Set up Python
+        uses: actions/setup-python@v2
+      - name: Set up MinGW
+        uses: egor-tensin/setup-mingw@v2
+      - name: Install Doxygen
+        run: |
+          sudo apt-get update
+          sudo DEBIAN_FRONTEND=noninteractive apt-get install -yq --no-install-recommends doxygen
+      - name: Build Boost
+        run: make deps
+      - name: Build
+        run: make install
+      - name: Build docs
+        run: make docs
+      - name: Publish to GitHub Pages
+        uses: JamesIves/github-pages-deploy-action@4.1.5
+        with:
+          branch: gh-pages
+          folder: ../build/cmake/html
+          single-commit: true

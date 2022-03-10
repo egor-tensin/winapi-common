@@ -28,6 +28,8 @@ Build & display the documentation using
 
     make docs
 
+View the online documentation at https://egor-tensin.github.io/winapi-common/.
+
 License
 -------
 
