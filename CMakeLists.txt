@@ -38,5 +38,8 @@ if(DOXYGEN_FOUND)
     set(DOXYGEN_SORT_MEMBER_DOCS NO)
     set(DOXYGEN_SOURCE_BROWSER YES)
     set(DOXYGEN_USE_MDFILE_AS_MAINPAGE README.md)
-    doxygen_add_docs(docs README.md ${winapi_common_include} ${winapi_common_src})
+    doxygen_add_docs(winapi_common_docs
+        README.md
+        ${winapi_common_include}
+        ${winapi_common_src})
 endif()
