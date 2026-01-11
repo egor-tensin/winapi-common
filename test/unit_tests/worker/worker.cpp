@@ -31,13 +31,9 @@ bool is_window_visible() {
         return false;
     }
 
-    const auto mask = ::GetWindowLongW(window, GWL_STYLE);
+    const auto visible = ::IsWindowVisible(window);
 
-    if (!mask) {
-        throw winapi::error::windows(GetLastError(), "GetWindowLongW");
-    }
-
-    return mask & WS_VISIBLE;
+    return visible;
 }
 
 winapi::Handle write_to(winapi::Handle dest, const std::string& msg) {
