@@ -1,0 +1,17 @@
+var searchData=
+[
+  ['set_0',['set',['../classwinapi_1_1Buffer.html#a0b2fad438202fbcfd4946baf3f879f59',1,'winapi::Buffer::set(const std::basic_string&lt; CharT &gt; &amp;src)'],['../classwinapi_1_1Buffer.html#ab09aa9c5075579510da463b4148ee610',1,'winapi::Buffer::set(const void *src, std::size_t nb)']]],
+  ['sharedmemory_1',['SharedMemory',['../classwinapi_1_1SharedMemory.html',1,'winapi']]],
+  ['sharedobject_2',['SharedObject',['../classwinapi_1_1SharedObject.html',1,'winapi']]],
+  ['shell_3',['shell',['../classwinapi_1_1Process.html#a24e1cbd68bc2dda73220b840979a84b0',1,'winapi::Process::shell(const CommandLine &amp;)'],['../classwinapi_1_1Process.html#aa9f7cbc9b0e5530f0746606aacc5584e',1,'winapi::Process::shell(const ShellParameters &amp;)']]],
+  ['shellparameters_4',['ShellParameters',['../structwinapi_1_1ShellParameters.html',1,'winapi']]],
+  ['shut_5fdown_5',['shut_down',['../classwinapi_1_1Process.html#a1aedc4814dd9c154b6e03e572d873755',1,'winapi::Process']]],
+  ['sid_6',['Sid',['../classwinapi_1_1Sid.html',1,'winapi']]],
+  ['std_5ferr_7',['std_err',['../classwinapi_1_1Handle.html#a894d880e1241c9516889a7a63a0c1750',1,'winapi::Handle']]],
+  ['std_5fin_8',['std_in',['../classwinapi_1_1Handle.html#a1817fdf127291cf5f47d6429d8f468cd',1,'winapi::Handle']]],
+  ['std_5fout_9',['std_out',['../classwinapi_1_1Handle.html#a76e96327afd0b943d996c90289f2883e',1,'winapi::Handle']]],
+  ['stderr_10',['stderr',['../structwinapi_1_1process_1_1Stderr.html',1,'winapi::process::Stderr'],['../structwinapi_1_1process_1_1Stderr.html#aefbbae355c05c41f177ed5c3f769809c',1,'winapi::process::Stderr::Stderr()'],['../structwinapi_1_1process_1_1Stderr.html#a9906ac147b47c7e7b8a299e942cb77c5',1,'winapi::process::Stderr::Stderr(const std::string &amp;file)'],['../structwinapi_1_1process_1_1Stderr.html#a1daa6ec6ad6b30d9958b2ee76f086230',1,'winapi::process::Stderr::Stderr(const CanonicalPath &amp;file)'],['../structwinapi_1_1process_1_1Stderr.html#a0fca971e15b205e971a18c206d1c8003',1,'winapi::process::Stderr::Stderr(Pipe &amp;)']]],
+  ['stdin_11',['stdin',['../structwinapi_1_1process_1_1Stdin.html',1,'winapi::process::Stdin'],['../structwinapi_1_1process_1_1Stdin.html#ab551f076d049c58b5391847ec0fe8999',1,'winapi::process::Stdin::Stdin()'],['../structwinapi_1_1process_1_1Stdin.html#a68803e010fad2a3634c031bc14a0d857',1,'winapi::process::Stdin::Stdin(const std::string &amp;file)'],['../structwinapi_1_1process_1_1Stdin.html#a77e20c39f33a6b8e8ffffa8972c924a7',1,'winapi::process::Stdin::Stdin(const CanonicalPath &amp;file)'],['../structwinapi_1_1process_1_1Stdin.html#afc350d91445057721b1d87a4e759da4e',1,'winapi::process::Stdin::Stdin(Pipe &amp;)']]],
+  ['stdout_12',['stdout',['../structwinapi_1_1process_1_1Stdout.html#afa84e724674b234d395c766b3d04582d',1,'winapi::process::Stdout::Stdout(Pipe &amp;)'],['../structwinapi_1_1process_1_1Stdout.html#ab70d4bff6f55c51fec06efdaa4fcdb81',1,'winapi::process::Stdout::Stdout(const CanonicalPath &amp;file)'],['../structwinapi_1_1process_1_1Stdout.html#a7319a44d66f5c109bea89a04ca4c4ba2',1,'winapi::process::Stdout::Stdout(const std::string &amp;file)'],['../structwinapi_1_1process_1_1Stdout.html#a1afc245b79c17e05bee9931f347a34e5',1,'winapi::process::Stdout::Stdout()'],['../structwinapi_1_1process_1_1Stdout.html',1,'winapi::process::Stdout']]],
+  ['stream_13',['Stream',['../structwinapi_1_1process_1_1Stream.html',1,'winapi::process']]]
+];
