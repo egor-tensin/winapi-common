@@ -107,7 +107,9 @@ public:
             for (int16_t c = 0; c < buffer_size.X; ++c) {
                 oss << buffer[i * buffer_size.X + c].Char.UnicodeChar;
             }
-            result.emplace_back(boost::trim_right_copy(winapi::narrow(oss.str())));
+            std::wstring temp{oss.str()};
+            temp.erase(std::remove(temp.begin(), temp.end(), '\0'), temp.end());
+            result.emplace_back(boost::trim_right_copy(winapi::narrow(temp)));
         }
 
         return result;
