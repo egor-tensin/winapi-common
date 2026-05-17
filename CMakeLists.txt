@@ -1,10 +1,16 @@
-# For CONFIGURE_DEPENDS
-cmake_minimum_required(VERSION 3.12)
+# oldstable as of May '26
+cmake_minimum_required(VERSION 3.25)
 
 project(winapi_common CXX)
 enable_testing()
 
-include(cmake/common.cmake)
+if (MSVC)
+    add_compile_options(/MP /W4)
+else()
+    add_compile_options(-Wall -Wextra)
+endif()
+
+add_compile_definitions(WIN32_LEAN_AND_MEAN NOMINMAX)
 
 find_package(Boost REQUIRED)
 add_subdirectory(3rdparty/winapi/utf8 EXCLUDE_FROM_ALL)

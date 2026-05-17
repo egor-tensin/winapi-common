@@ -11,8 +11,8 @@ TOOLSET         ?= mingw
 PLATFORM        ?= auto
 CONFIGURATION   ?= Debug
 BOOST_VERSION   ?= 1.81.0
-BOOST_LIBRARIES := --with-test
-CMAKE_FLAGS     ?= -D WINAPI_COMMON_TESTS=ON
+BOOST_LIBRARIES := test
+CMAKE_FLAGS     ?= --cmake-arg=-DWINAPI_COMMON_TESTS=ON
 INSTALL_PREFIX  ?= $(install_dir)
 
 $(eval $(call noexpand,TOOLSET))
@@ -54,10 +54,10 @@ build:
 		--configuration '$(call escape,$(CONFIGURATION))' \
 		--install '$(call escape,$(INSTALL_PREFIX))' \
 		--boost '$(call escape,$(boost_dir))' \
+		$(CMAKE_FLAGS) \
 		-- \
 		'$(call escape,$(src_dir))' \
-		'$(call escape,$(cmake_dir))' \
-		$(CMAKE_FLAGS)
+		'$(call escape,$(cmake_dir))'
 
 .PHONY: install
 install: build

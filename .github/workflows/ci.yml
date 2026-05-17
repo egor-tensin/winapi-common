@@ -19,6 +19,7 @@ jobs:
 
   build:
     strategy:
+      fail-fast: false
       matrix:
         os: [ubuntu-latest, windows-2022, windows-2025]
         platform: [x64, x86]
@@ -41,7 +42,7 @@ jobs:
       PLATFORM: '${{ matrix.platform }}'
       CONFIGURATION: '${{ matrix.configuration }}'
       BOOST_VERSION: '${{ matrix.boost-version }}'
-      CMAKE_FLAGS: -D WINAPI_COMMON_TESTS=ON
+      CMAKE_FLAGS: --cmake-arg=-DWINAPI_COMMON_TESTS=ON
     steps:
       - name: Checkout
         uses: actions/checkout@v6
@@ -92,7 +93,7 @@ jobs:
     env:
       TOOLSET: mingw
       BOOST_VERSION: 1.81.0
-      CMAKE_FLAGS: -D WINAPI_COMMON_TESTS=OFF
+      CMAKE_FLAGS: --cmake-arg=-DWINAPI_COMMON_TESTS=OFF
     steps:
       # This is rather stupid. In order to build Doxygen docs, I need a working
       # CMake build directory, so I assume that means I need to pretty much

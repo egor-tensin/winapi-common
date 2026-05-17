@@ -8,7 +8,6 @@ set_target_properties(unit_tests PROPERTIES OUTPUT_NAME winapi-common-unit-tests
 target_link_libraries(unit_tests PRIVATE winapi_common winapi_utf8)
 target_link_libraries(unit_tests PRIVATE Boost::disable_autolinking Boost::unit_test_framework)
 install(TARGETS unit_tests RUNTIME DESTINATION bin)
-install_pdbs(TARGETS unit_tests DESTINATION bin)
 
 file(GLOB worker_src CONFIGURE_DEPENDS "worker/*.cpp")
 add_executable(worker ${worker_src} ${shared_src})
@@ -16,7 +15,13 @@ set_target_properties(worker PROPERTIES OUTPUT_NAME winapi-common-test-worker)
 target_link_libraries(worker PRIVATE winapi_common winapi_utf8)
 target_link_libraries(worker PRIVATE Boost::disable_autolinking Boost::boost)
 install(TARGETS worker RUNTIME DESTINATION bin)
-install_pdbs(TARGETS worker DESTINATION bin)
+
+if(MSVC)
+    install(FILES
+        $<TARGET_PDB_FILE:unit_tests>
+        $<TARGET_PDB_FILE:worker>
+        DESTINATION bin OPTIONAL)
+endif()
 
 find_package(Python3 REQUIRED COMPONENTS Interpreter)
 
