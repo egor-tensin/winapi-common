@@ -1,8 +1,8 @@
 find_package(Boost REQUIRED COMPONENTS unit_test_framework)
 
-file(GLOB shared_src "shared/*.hpp")
+file(GLOB shared_src CONFIGURE_DEPENDS "shared/*.hpp")
 
-file(GLOB unit_tests_src "*.cpp" "*.h" "*.hpp" "*.rc")
+file(GLOB unit_tests_src CONFIGURE_DEPENDS "*.cpp" "*.h" "*.hpp" "*.rc")
 add_executable(unit_tests ${unit_tests_src} ${shared_src})
 set_target_properties(unit_tests PROPERTIES OUTPUT_NAME winapi-common-unit-tests)
 target_link_libraries(unit_tests PRIVATE winapi_common winapi_utf8)
@@ -10,7 +10,7 @@ target_link_libraries(unit_tests PRIVATE Boost::disable_autolinking Boost::unit_
 install(TARGETS unit_tests RUNTIME DESTINATION bin)
 install_pdbs(TARGETS unit_tests DESTINATION bin)
 
-file(GLOB worker_src "worker/*.cpp")
+file(GLOB worker_src CONFIGURE_DEPENDS "worker/*.cpp")
 add_executable(worker ${worker_src} ${shared_src})
 set_target_properties(worker PROPERTIES OUTPUT_NAME winapi-common-test-worker)
 target_link_libraries(worker PRIVATE winapi_common winapi_utf8)

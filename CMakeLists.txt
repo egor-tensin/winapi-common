@@ -1,4 +1,5 @@
-cmake_minimum_required(VERSION 3.8)
+# For CONFIGURE_DEPENDS
+cmake_minimum_required(VERSION 3.12)
 
 project(winapi_common CXX)
 enable_testing()
@@ -8,8 +9,8 @@ include(cmake/common.cmake)
 find_package(Boost REQUIRED)
 add_subdirectory(3rdparty/winapi/utf8 EXCLUDE_FROM_ALL)
 
-file(GLOB_RECURSE winapi_common_include "include/*.hpp")
-file(GLOB winapi_common_src "src/*.cpp")
+file(GLOB_RECURSE winapi_common_include CONFIGURE_DEPENDS "include/*.hpp")
+file(GLOB winapi_common_src CONFIGURE_DEPENDS "src/*.cpp")
 add_library(winapi_common ${winapi_common_include} ${winapi_common_src})
 target_include_directories(winapi_common PUBLIC include)
 target_link_libraries(winapi_common PRIVATE winapi_utf8)
