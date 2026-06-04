@@ -13,7 +13,6 @@
 #include <cassert>
 #include <cstddef>
 #include <limits>
-#include <sstream>
 #include <stdexcept>
 #include <utility>
 
@@ -21,9 +20,8 @@ namespace winapi {
 namespace {
 
 std::runtime_error write_file_incomplete(std::size_t expected, std::size_t actual) {
-    std::ostringstream oss;
-    oss << "WriteFile could only write " << actual << " bytes instead of " << expected;
-    return std::runtime_error{oss.str()};
+    return std::runtime_error{
+        std::format("WriteFile could only write {} bytes instead of {}", actual, expected)};
 }
 
 bool is_std_handle(HANDLE handle) {

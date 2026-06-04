@@ -9,7 +9,7 @@
 #include <windows.h>
 
 #include <cstdint>
-#include <sstream>
+#include <format>
 #include <string>
 #include <string_view>
 #include <system_error>
@@ -27,9 +27,7 @@ std::wstring trim_trailing_newline(std::wstring_view s) {
 }
 
 std::string build_what(DWORD code, std::string_view function) {
-    std::ostringstream what;
-    what << "Function " << function << " failed with error code " << code;
-    return what.str();
+    return std::format("Function {} failed with error code {}", function, code);
 }
 
 std::string format_message(int32_t code) {

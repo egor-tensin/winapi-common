@@ -18,8 +18,8 @@
 
 #include <cstddef>
 #include <cstring>
+#include <format>
 #include <limits>
-#include <sstream>
 #include <stdexcept>
 #include <string>
 #include <utility>
@@ -384,11 +384,9 @@ Resource Process::get_resource(uint32_t id) {
 
     const auto data = ::LockResource(resource);
 
-    if (data == NULL) {
-        std::ostringstream oss;
-        oss << "Couldn't get data pointer for resource with ID " << id;
-        throw std::runtime_error{oss.str()};
-    }
+    if (data == NULL)
+        throw std::runtime_error{
+            std::format("Couldn't get data pointer for resource with ID {}", id)};
 
     const auto nb = ::SizeofResource(module, src);
 

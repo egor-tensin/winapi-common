@@ -7,8 +7,8 @@
 
 #include <cstddef>
 #include <cstring>
+#include <format>
 #include <initializer_list>
-#include <sstream>
 #include <stdexcept>
 #include <string>
 #include <string_view>
@@ -67,11 +67,8 @@ public:
     std::wstring as_utf16() const {
         const auto c_str = reinterpret_cast<const wchar_t*>(data());
         const auto nb = size();
-        if (nb % 2 != 0) {
-            std::ostringstream oss;
-            oss << "Buffer size invalid at " << nb << " bytes";
-            throw std::runtime_error{oss.str()};
-        }
+        if (nb % 2 != 0)
+            throw std::runtime_error{std::format("Buffer size invalid at {} bytes", nb)};
         const auto nch = nb / 2;
         return {c_str, nch};
     }

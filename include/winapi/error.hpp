@@ -13,7 +13,7 @@
 #include <windows.h>
 
 #include <cstdint>
-#include <sstream>
+#include <format>
 #include <stdexcept>
 #include <string>
 #include <system_error>
@@ -44,9 +44,7 @@ std::system_error windows(DWORD code, const char* function);
 
 template <typename Ret>
 std::runtime_error custom(Ret ret, const char* function) {
-    std::ostringstream oss;
-    oss << "Function " << function << " failed with error code " << ret;
-    return std::runtime_error{oss.str()};
+    return std::runtime_error{std::format("Function {} failed with error code {}", function, ret)};
 }
 
 } // namespace error

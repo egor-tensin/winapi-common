@@ -16,6 +16,7 @@
 // clang-format on
 
 #include <cstddef>
+#include <format>
 #include <memory>
 #include <sstream>
 #include <stdexcept>
@@ -129,9 +130,8 @@ std::string CommandLine::escape_cmd(std::string_view arg) {
 
     auto safe = escape(arg);
     for (const auto danger : dangerous_symbols) {
-        std::ostringstream replacement;
-        replacement << escape_symbol << danger;
-        boost::replace_all(safe, std::string{danger}, replacement.str());
+        const auto replacement = std::format("{}{}", escape_symbol, danger);
+        boost::replace_all(safe, std::string{danger}, replacement.data());
     }
     return safe;
 }
