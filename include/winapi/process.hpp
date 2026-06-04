@@ -10,11 +10,10 @@
 #include "process_io.hpp"
 #include "resource.hpp"
 
-#include <boost/optional.hpp>
-
 #include <windows.h>
 
 #include <cstdint>
+#include <optional>
 #include <string>
 #include <utility>
 
@@ -31,7 +30,7 @@ struct ProcessParameters {
     explicit ProcessParameters(const CommandLine& cmd_line) : cmd_line{cmd_line} {}
 
     CommandLine cmd_line;
-    boost::optional<process::IO> io;
+    std::optional<process::IO> io;
     ConsoleCreationMode console_mode = ConsoleNew;
 };
 
@@ -45,7 +44,7 @@ struct ShellParameters : ProcessParameters {
 
     explicit ShellParameters(const CommandLine& cmd_line) : ProcessParameters{cmd_line} {}
 
-    boost::optional<std::string> verb;
+    std::optional<std::string> verb;
 };
 
 /**
