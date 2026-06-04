@@ -19,7 +19,7 @@
 
 class RemoveFileGuard {
 public:
-    explicit RemoveFileGuard(const winapi::CanonicalPath& path) : m_path(path) {}
+    explicit RemoveFileGuard(const winapi::CanonicalPath& path) : m_path{path} {}
 
     ~RemoveFileGuard() {
         try {
@@ -38,7 +38,7 @@ private:
 
 class WithParam {
 public:
-    WithParam(const std::string& param_prefix) : m_value(find_param_value(param_prefix)) {}
+    WithParam(const std::string& param_prefix) : m_value{find_param_value(param_prefix)} {}
 
     const std::string& get_value() { return m_value; }
 
@@ -59,14 +59,14 @@ private:
 
 class WithEchoExe : public WithParam {
 public:
-    WithEchoExe() : WithParam("--echo_exe=") {}
+    WithEchoExe() : WithParam{"--echo_exe="} {}
 
     const std::string& get_echo_exe() { return get_value(); }
 };
 
 class WithWorkerExe : public WithParam {
 public:
-    WithWorkerExe() : WithParam("--worker_exe="), m_cmd(worker::Command::create()) {}
+    WithWorkerExe() : WithParam{"--worker_exe="}, m_cmd{worker::Command::create()} {}
 
     const std::string& get_worker_exe() { return get_value(); }
 

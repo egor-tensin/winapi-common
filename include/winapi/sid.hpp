@@ -24,7 +24,7 @@ public:
 
     static Sid builtin_administrators();
 
-    explicit Sid(const Buffer& buffer) : m_buffer(buffer) {}
+    explicit Sid(const Buffer& buffer) : m_buffer{buffer} {}
 
     explicit operator SID&() { return get_impl(); }
     explicit operator const SID&() const { return get_impl(); }
