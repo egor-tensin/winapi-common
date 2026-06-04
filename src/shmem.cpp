@@ -13,7 +13,7 @@
 
 #include <cstddef>
 #include <cstdint>
-#include <string>
+#include <string_view>
 #include <utility>
 
 namespace winapi {
@@ -37,7 +37,7 @@ void SharedMemory::Unmap::operator()(void* ptr) const {
     WINAPI_UNUSED_PARAMETER(ret);
 };
 
-SharedMemory SharedMemory::create(const std::string& name, std::size_t nb) {
+SharedMemory SharedMemory::create(std::string_view name, std::size_t nb) {
     const auto nb64 = static_cast<std::uint64_t>(nb);
     static_assert(sizeof(nb64) == 2 * sizeof(DWORD), "sizeof(DWORD) != 32");
 
@@ -56,7 +56,7 @@ SharedMemory SharedMemory::create(const std::string& name, std::size_t nb) {
     return {std::move(mapping), addr};
 }
 
-SharedMemory SharedMemory::open(const std::string& name) {
+SharedMemory SharedMemory::open(std::string_view name) {
     const auto mapping_impl = ::OpenFileMappingW(FILE_MAP_ALL_ACCESS, FALSE, widen(name).c_str());
 
     if (mapping_impl == NULL) {

@@ -14,7 +14,7 @@
 
 #include <cstddef>
 #include <functional>
-#include <string>
+#include <string_view>
 #include <utility>
 
 namespace winapi {
@@ -38,20 +38,20 @@ public:
     };
 
     /** Open file for reading. */
-    static File open_r(const std::string&);
+    static File open_r(std::string_view);
     /** @overload */
     static File open_r(const CanonicalPath&);
     /** Open file for reading (inc. ability to read its attributes). */
-    static File open_read_attributes(const std::string&);
+    static File open_read_attributes(std::string_view);
     /** @overload */
     static File open_read_attributes(const CanonicalPath&);
     /** Open file for writing. */
-    static File open_w(const std::string&);
+    static File open_w(std::string_view);
     /** @overload */
     static File open_w(const CanonicalPath&);
 
     /** Delete a file. */
-    static void remove(const std::string&);
+    static void remove(std::string_view);
     /** @overload */
     static void remove(const CanonicalPath&);
 

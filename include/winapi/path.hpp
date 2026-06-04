@@ -13,9 +13,9 @@ namespace winapi {
 class CanonicalPath {
 public:
     /** Make an absolute, canonical path. */
-    static std::string canonicalize(const std::string&);
+    static std::string canonicalize(std::string_view);
 
-    explicit CanonicalPath(const std::string&);
+    explicit CanonicalPath(std::string_view);
 
     std::string get() const { return m_path; }
     std::string path() const { return get(); }

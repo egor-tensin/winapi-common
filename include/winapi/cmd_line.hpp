@@ -6,6 +6,7 @@
 #pragma once
 
 #include <string>
+#include <string_view>
 #include <utility>
 #include <vector>
 
@@ -27,7 +28,7 @@ public:
      * Parse a command line from a string.
      * @param src UTF-8 encoded string.
      */
-    static CommandLine parse(const std::string& src);
+    static CommandLine parse(std::string_view src);
 
     /**
      * Build a command line from main() arguments.
@@ -64,9 +65,9 @@ public:
      */
     explicit CommandLine(std::vector<std::string> argv);
 
-    static std::string escape(const std::string&);
+    static std::string escape(std::string_view);
 
-    static std::string escape_cmd(const std::string&);
+    static std::string escape_cmd(std::string_view);
 
     /**
      * Build a string that represents this command line.

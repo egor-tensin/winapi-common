@@ -20,6 +20,7 @@
 #include <sstream>
 #include <stdexcept>
 #include <string>
+#include <string_view>
 #include <utility>
 #include <vector>
 
@@ -76,7 +77,7 @@ CommandLine CommandLine::query() {
     return do_parse(::GetCommandLineW());
 }
 
-CommandLine CommandLine::parse(const std::string& src) {
+CommandLine CommandLine::parse(std::string_view src) {
     return do_parse(widen(src));
 }
 
@@ -90,7 +91,7 @@ CommandLine::CommandLine(std::vector<std::string> argv) : m_args{std::move(argv)
     m_argv0 = split_argv0(m_args);
 }
 
-std::string CommandLine::escape(const std::string& arg) {
+std::string CommandLine::escape(std::string_view arg) {
     std::ostringstream safe;
     safe << '"';
 
@@ -122,7 +123,7 @@ std::string CommandLine::escape(const std::string& arg) {
     return safe.str();
 }
 
-std::string CommandLine::escape_cmd(const std::string& arg) {
+std::string CommandLine::escape_cmd(std::string_view arg) {
     static constexpr auto escape_symbol = '^';
     static const std::string dangerous_symbols{"^!\"%&()<>|"};
 

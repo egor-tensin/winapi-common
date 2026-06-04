@@ -18,7 +18,7 @@
 namespace winapi {
 namespace {
 
-std::wstring to_system_path(const std::string& path) {
+std::wstring to_system_path(std::string_view path) {
     return widen(path);
 }
 
@@ -58,13 +58,13 @@ private:
     CreateFileParams() = default;
 };
 
-File open_file(const std::wstring& path, const CreateFileParams& params) {
+File open_file(std::wstring_view path, const CreateFileParams& params) {
     SECURITY_ATTRIBUTES attributes;
     std::memset(&attributes, 0, sizeof(attributes));
     attributes.nLength = sizeof(attributes);
     attributes.bInheritHandle = TRUE;
 
-    const auto handle = ::CreateFileW(path.c_str(),
+    const auto handle = ::CreateFileW(path.data(),
                                       params.dwDesiredAccess,
                                       params.dwShareMode,
                                       &attributes,
@@ -79,8 +79,8 @@ File open_file(const std::wstring& path, const CreateFileParams& params) {
     return File{Handle{handle}};
 }
 
-void remove_file(const std::wstring& path) {
-    const auto ret = ::DeleteFileW(path.c_str());
+void remove_file(std::wstring_view path) {
+    const auto ret = ::DeleteFileW(path.data());
 
     if (!ret) {
         throw error::windows(GetLastError(), "DeleteFileW");
@@ -89,7 +89,7 @@ void remove_file(const std::wstring& path) {
 
 } // namespace
 
-File File::open_r(const std::string& path) {
+File File::open_r(std::string_view path) {
     return open_file(to_system_path(path), CreateFileParams::read());
 }
 
@@ -97,7 +97,7 @@ File File::open_r(const CanonicalPath& path) {
     return open_file(to_system_path(path), CreateFileParams::read());
 }
 
-File File::open_read_attributes(const std::string& path) {
+File File::open_read_attributes(std::string_view path) {
     return open_file(to_system_path(path), CreateFileParams::read_attributes());
 }
 
@@ -105,7 +105,7 @@ File File::open_read_attributes(const CanonicalPath& path) {
     return open_file(to_system_path(path), CreateFileParams::read_attributes());
 }
 
-File File::open_w(const std::string& path) {
+File File::open_w(std::string_view path) {
     return open_file(to_system_path(path), CreateFileParams::write());
 }
 
@@ -113,7 +113,7 @@ File File::open_w(const CanonicalPath& path) {
     return open_file(to_system_path(path), CreateFileParams::write());
 }
 
-void File::remove(const std::string& path) {
+void File::remove(std::string_view path) {
     remove_file(to_system_path(path));
 }
 

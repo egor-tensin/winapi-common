@@ -9,7 +9,7 @@
 
 #include <cstddef>
 #include <memory>
-#include <string>
+#include <string_view>
 #include <type_traits>
 #include <utility>
 
@@ -23,12 +23,12 @@ public:
      * @param name UTF-8 string.
      * @param nb   Number of bytes.
      */
-    static SharedMemory create(const std::string& name, std::size_t nb);
+    static SharedMemory create(std::string_view name, std::size_t nb);
     /**
      * Opens a shared memory region.
      * @param name UTF-8 string.
      */
-    static SharedMemory open(const std::string& name);
+    static SharedMemory open(std::string_view name);
 
     /** Get pointer to the data. */
     void* get() const { return m_addr.get(); }
@@ -60,7 +60,7 @@ public:
      * @param args Arguments to construct the object.
      */
     template <typename... Args>
-    static SharedObject create(const std::string& name, Args&&... args) {
+    static SharedObject create(std::string_view name, Args&&... args) {
         SharedObject obj{SharedMemory::create(name, sizeof(AlignedType))};
         new (obj.ptr()) T(std::forward<Args>(args)...);
         obj.m_destruct = true;
@@ -71,7 +71,7 @@ public:
      * Open a shared memory region that stores the object.
      * @param name UTF-8 string, name of the shared memory region.
      */
-    static SharedObject open(const std::string& name) {
+    static SharedObject open(std::string_view name) {
         SharedObject obj{SharedMemory::open(name)};
         return obj;
     }

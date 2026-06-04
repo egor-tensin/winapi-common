@@ -11,6 +11,7 @@
 #include <sstream>
 #include <stdexcept>
 #include <string>
+#include <string_view>
 #include <utility>
 #include <vector>
 
@@ -33,19 +34,19 @@ public:
     /** Construct a buffer from an instance of `std::vector<unsigned char>`. */
     explicit Buffer(Parent&& src) : Parent{std::move(src)} {}
 
-    /** Construct a buffer from an instance of `std::basic_string`. */
+    /** Construct a buffer from a string view. */
     template <typename CharT>
-    explicit Buffer(const std::basic_string<CharT>& src) {
+    explicit Buffer(std::basic_string_view<CharT> src) {
         set(src);
     }
 
     /** Construct a buffer from a memory region. */
     Buffer(const void* src, std::size_t nb) { set(src, nb); }
 
-    /** Replace the buffer's contents with the data from `std::basic_string`. */
+    /** Replace the buffer's contents with the data from a string view. */
     template <typename CharT>
-    void set(const std::basic_string<CharT>& src) {
-        set(src.c_str(), src.length() * sizeof(std::basic_string<CharT>::char_type));
+    void set(std::basic_string_view<CharT> src) {
+        set(src.data(), src.length() * sizeof(std::basic_string_view<CharT>::char_type));
     }
 
     /** Replace the buffer's contents with the data from a memory region. */

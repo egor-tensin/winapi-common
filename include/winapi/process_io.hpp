@@ -9,7 +9,7 @@
 #include "path.hpp"
 #include "pipe.hpp"
 
-#include <string>
+#include <string_view>
 #include <utility>
 
 namespace winapi {
@@ -26,7 +26,7 @@ struct Stdin : Stream {
     /** No redirection. */
     Stdin();
     /** Make child process read form a file. */
-    explicit Stdin(const std::string& file);
+    explicit Stdin(std::string_view file);
     /** @overload */
     explicit Stdin(const CanonicalPath& file);
     /** Make child process read form a pipe. */
@@ -38,7 +38,7 @@ struct Stdout : Stream {
     /** No redirection. */
     Stdout();
     /** Redirect child process's stdout to a file. */
-    explicit Stdout(const std::string& file);
+    explicit Stdout(std::string_view file);
     /** @overload */
     explicit Stdout(const CanonicalPath& file);
     /** Redirect child process's stdout to a pipe. */
@@ -50,7 +50,7 @@ struct Stderr : Stream {
     /** No redirection. */
     Stderr();
     /** Redirect child process's stderr to a file. */
-    explicit Stderr(const std::string& file);
+    explicit Stderr(std::string_view file);
     /** @overload */
     explicit Stderr(const CanonicalPath& file);
     /** Redirect child process's stderr to a pipe. */

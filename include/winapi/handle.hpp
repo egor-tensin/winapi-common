@@ -11,7 +11,7 @@
 
 #include <cstddef>
 #include <memory>
-#include <string>
+#include <string_view>
 #include <utility>
 
 namespace winapi {
@@ -69,14 +69,23 @@ public:
      * @param buffer Binary data to write.
      */
     void write(const Buffer& buffer) const;
-
     /**
      * Write data to this handle.
      * @param src Binary data to write.
      */
     template <typename CharT>
-    void write(const std::basic_string<CharT>& src) const {
-        write(src.c_str(), src.size() * sizeof(CharT));
+    void write(std::basic_string_view<CharT> src) const {
+        write(src.data(), src.length() * sizeof(CharT));
+    }
+    /**
+     * Write data to this handle.
+     * @param src Binary data to write.
+     */
+    template <typename CharT,
+              typename Traits = std::char_traits<CharT>,
+              typename Allocator = std::allocator<CharT>>
+    void write(const std::basic_string<CharT, Traits, Allocator> src) const {
+        write(std::basic_string_view<CharT>{src});
     }
 
     void inherit(bool yes = true) const;

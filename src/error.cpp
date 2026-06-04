@@ -11,20 +11,22 @@
 #include <cstdint>
 #include <sstream>
 #include <string>
+#include <string_view>
 #include <system_error>
 
 namespace winapi {
 namespace error {
 namespace {
 
-std::wstring trim_trailing_newline(const std::wstring& s) {
+std::wstring trim_trailing_newline(std::wstring_view s) {
     const auto last_pos = s.find_last_not_of(L"\r\n");
-    if (std::wstring::npos == last_pos)
+    if (std::wstring_view::npos == last_pos)
         return {};
-    return s.substr(0, last_pos + 1);
+    const auto sub = s.substr(0, last_pos + 1);
+    return {sub.data(), sub.length()};
 }
 
-std::string build_what(DWORD code, const char* function) {
+std::string build_what(DWORD code, std::string_view function) {
     std::ostringstream what;
     what << "Function " << function << " failed with error code " << code;
     return what.str();
