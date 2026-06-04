@@ -11,8 +11,7 @@
 #include <string_view>
 #include <utility>
 
-namespace winapi {
-namespace process {
+namespace winapi::process {
 
 Stdin::Stdin() : Stream{Handle::std_in()} {}
 
@@ -50,5 +49,4 @@ void IO::close() {
     std_err.handle.close();
 }
 
-} // namespace process
-} // namespace winapi
+} // namespace winapi::process

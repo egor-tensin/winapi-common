@@ -7,8 +7,7 @@
 
 #include <string>
 
-namespace worker {
-namespace test_data {
+namespace worker::test_data {
 
 static constexpr auto str = "Test output.";
 
@@ -20,5 +19,4 @@ inline std::string err() {
     return "stderr: " + std::string{str};
 }
 
-} // namespace test_data
-} // namespace worker
+} // namespace worker::test_data

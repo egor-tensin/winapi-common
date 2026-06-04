@@ -12,8 +12,7 @@
 #include <string_view>
 #include <utility>
 
-namespace winapi {
-namespace process {
+namespace winapi::process {
 
 struct Stream {
     Stream(Handle&& handle) : handle{std::move(handle)} {}
@@ -68,5 +67,4 @@ struct IO {
     Stderr std_err;
 };
 
-} // namespace process
-} // namespace winapi
+} // namespace winapi::process

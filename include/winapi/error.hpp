@@ -18,8 +18,7 @@
 #include <string>
 #include <system_error>
 
-namespace winapi {
-namespace error {
+namespace winapi::error {
 
 class CategoryWindows : public std::error_category {
 public:
@@ -47,5 +46,4 @@ std::runtime_error custom(Ret ret, const char* function) {
     return std::runtime_error{std::format("Function {} failed with error code {}", function, ret)};
 }
 
-} // namespace error
-} // namespace winapi
+} // namespace winapi::error

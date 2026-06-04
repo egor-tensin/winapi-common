@@ -14,8 +14,7 @@
 #include <string_view>
 #include <system_error>
 
-namespace winapi {
-namespace error {
+namespace winapi::error {
 namespace {
 
 std::wstring trim_trailing_newline(std::wstring_view s) {
@@ -64,5 +63,4 @@ std::system_error windows(DWORD code, const char* function) {
         static_cast<int32_t>(code), category_windows(), build_what(code, function)};
 }
 
-} // namespace error
-} // namespace winapi
+} // namespace winapi::error
