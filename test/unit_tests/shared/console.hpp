@@ -26,7 +26,7 @@ namespace console {
 
 class Buffer {
 public:
-    typedef CONSOLE_SCREEN_BUFFER_INFO Info;
+    using Info = CONSOLE_SCREEN_BUFFER_INFO;
 
     Buffer() : m_handle{winapi::Handle::std_out()}, m_info{get_info(m_handle)} {}
 

@@ -52,7 +52,7 @@ private:
 template <typename T>
 class SharedObject {
 public:
-    typedef typename std::aligned_storage<sizeof(T), __alignof(T)>::type AlignedType;
+    using AlignedType = std::aligned_storage<sizeof(T), __alignof(T)>::type;
 
     /**
      * Create the object & construct a shared memory region to store it.

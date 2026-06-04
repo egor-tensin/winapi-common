@@ -18,7 +18,7 @@ class Sid {
 public:
     static constexpr std::size_t MAX_SID_SIZE = SECURITY_MAX_SID_SIZE;
 
-    typedef SID Impl;
+    using Impl = SID;
 
     static Sid well_known(WELL_KNOWN_SID_TYPE type);
 

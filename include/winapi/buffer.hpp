@@ -23,7 +23,7 @@ namespace winapi {
  */
 class Buffer : public std::vector<unsigned char> {
 public:
-    typedef std::vector<unsigned char> Parent;
+    using Parent = std::vector<unsigned char>;
 
     Buffer() = default;
 

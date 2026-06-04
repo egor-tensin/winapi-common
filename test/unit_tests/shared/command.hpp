@@ -52,15 +52,15 @@ public:
         fixed_size::StringList<> console_buffer;
     };
 
-    typedef winapi::SharedObject<Command> Shared;
+    using Shared = winapi::SharedObject<Command>;
 
-    typedef boost::interprocess::interprocess_mutex mutex;
-    typedef boost::interprocess::interprocess_condition condition_variable;
-    typedef boost::interprocess::scoped_lock<mutex> lock;
+    using mutex = boost::interprocess::interprocess_mutex;
+    using condition_variable = boost::interprocess::interprocess_condition;
+    using lock = boost::interprocess::scoped_lock<mutex>;
 
-    typedef std::function<void(Args&)> SetArgs;
-    typedef std::function<void(const Result&)> ReadResult;
-    typedef std::function<void(Action, const Args&, Result&)> ProcessAction;
+    using SetArgs = std::function<void(Args&)>;
+    using ReadResult = std::function<void(const Result&)>;
+    using ProcessAction = std::function<void(Action, const Args&, Result&)>;
 
     static Shared create() { return Shared::create(COMMAND_SHMEM_NAME); }
     static Shared open() { return Shared::open(COMMAND_SHMEM_NAME); }
