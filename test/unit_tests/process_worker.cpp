@@ -116,7 +116,7 @@ void check_console_buffer_inherit(Worker& worker, const std::vector<std::string>
         std::cout << PLACEHOLDER << std::endl;
     }
     // Order worker to write the lines:
-    const auto handles = worker.test_write();
+    worker.test_write();
     // Query worker process's window:
     const auto worker_actual = worker.read_last_lines(numof_lines);
     // Query this process's window:
@@ -143,7 +143,7 @@ void check_console_buffer_new(Worker& worker, const std::vector<std::string>& ex
         std::cout << PLACEHOLDER << std::endl;
     }
     // Order worker to write the lines:
-    const auto handles = worker.test_write();
+    worker.test_write();
     // Query worker process's window:
     const auto worker_actual = worker.read_last_lines(numof_lines);
     // Query this process's window:
