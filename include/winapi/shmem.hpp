@@ -95,7 +95,7 @@ public:
     T& operator*() const { return get(); }
 
 private:
-    explicit SharedObject(SharedMemory&& shmem) : m_shmem(std::move(shmem)) {}
+    explicit SharedObject(SharedMemory&& shmem) : m_shmem{std::move(shmem)} {}
 
     SharedMemory m_shmem;
     // Destruct only once, no matter the number of mappings.

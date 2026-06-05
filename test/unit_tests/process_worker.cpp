@@ -151,7 +151,7 @@ void check_console_buffer_new(Worker& worker, const std::vector<std::string>& ex
 
     // Placeholder lines are still last in this process's window:
     const auto& worker_expected = expected;
-    const std::vector<std::string> this_expected(numof_lines, PLACEHOLDER);
+    const std::vector<std::string> this_expected{numof_lines, PLACEHOLDER};
 
     BOOST_TEST(worker_actual == worker_expected);
     BOOST_TEST(this_actual == this_expected);
