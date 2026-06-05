@@ -12,6 +12,7 @@
 #include <cstddef>
 #include <cstdint>
 #include <cstring>
+#include <limits>
 #include <stdexcept>
 #include <string>
 
@@ -127,7 +128,8 @@ std::size_t File::get_size() const {
     if (!GetFileSizeEx(get(), &size))
         throw error::windows(GetLastError(), "GetFileSizeEx");
 
-    if (size.QuadPart < 0 || size.QuadPart > SIZE_MAX)
+    if (size.QuadPart < 0 ||
+        static_cast<ULONGLONG>(size.QuadPart) > std::numeric_limits<std::size_t>::max())
         throw std::runtime_error{"invalid file size"};
     return static_cast<std::size_t>(size.QuadPart);
 }
