@@ -1,4 +1,4 @@
-find_package(Boost REQUIRED COMPONENTS unit_test_framework)
+find_package(Boost CONFIG REQUIRED COMPONENTS unit_test_framework)
 
 file(GLOB shared_src CONFIGURE_DEPENDS "shared/*.hpp")
 

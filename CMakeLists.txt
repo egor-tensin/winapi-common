@@ -17,7 +17,7 @@ endif()
 
 add_compile_definitions(WIN32_LEAN_AND_MEAN NOMINMAX)
 
-find_package(Boost REQUIRED)
+find_package(Boost CONFIG REQUIRED)
 add_subdirectory(3rdparty/winapi/utf8 EXCLUDE_FROM_ALL)
 
 file(GLOB_RECURSE winapi_common_include CONFIGURE_DEPENDS "include/*.hpp")
