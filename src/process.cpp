@@ -167,11 +167,17 @@ Handle open_process(DWORD id, DWORD permissions) {
 
 class PathBuffer {
 public:
-    PathBuffer() : m_size{min_size} { m_data.resize(m_size); }
+    PathBuffer() : m_size{min_size} {
+        m_data.resize(m_size);
+    }
 
-    DWORD get_size() const { return m_size; }
+    DWORD get_size() const {
+        return m_size;
+    }
 
-    wchar_t* get_data() { return m_data.data(); }
+    wchar_t* get_data() {
+        return m_data.data();
+    }
 
     void grow() {
         if (m_size < min_size) {

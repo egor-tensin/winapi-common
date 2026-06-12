@@ -40,7 +40,9 @@ class WithParam {
 public:
     WithParam(const std::string& param_prefix) : m_value{find_param_value(param_prefix)} {}
 
-    const std::string& get_value() { return m_value; }
+    const std::string& get_value() {
+        return m_value;
+    }
 
 private:
     static std::string find_param_value(const std::string& param_prefix) {
@@ -61,14 +63,18 @@ class WithEchoExe : public WithParam {
 public:
     WithEchoExe() : WithParam{"--echo_exe="} {}
 
-    const std::string& get_echo_exe() { return get_value(); }
+    const std::string& get_echo_exe() {
+        return get_value();
+    }
 };
 
 class WithWorkerExe : public WithParam {
 public:
     WithWorkerExe() : WithParam{"--worker_exe="}, m_cmd{worker::Command::create()} {}
 
-    const std::string& get_worker_exe() { return get_value(); }
+    const std::string& get_worker_exe() {
+        return get_value();
+    }
 
     worker::Command::Shared m_cmd;
 };

@@ -41,7 +41,9 @@ public:
     }
 
     /** Construct a buffer from a memory region. */
-    Buffer(const void* src, std::size_t nb) { set(src, nb); }
+    Buffer(const void* src, std::size_t nb) {
+        set(src, nb);
+    }
 
     /** Replace the buffer's contents with the data from a string view. */
     template <typename CharT>

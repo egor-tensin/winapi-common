@@ -24,7 +24,9 @@ class CategoryWindows : public std::error_category {
 public:
     CategoryWindows() = default;
 
-    const char* name() const noexcept { return "Windows"; }
+    const char* name() const noexcept {
+        return "Windows";
+    }
 
     std::string message(int32_t) const;
 };

@@ -17,8 +17,13 @@ public:
 
     explicit CanonicalPath(std::string_view);
 
-    std::string get() const { return m_path; }
-    std::string path() const { return get(); }
+    std::string get() const {
+        return m_path;
+    }
+
+    std::string path() const {
+        return get();
+    }
 
 private:
     std::string m_path;

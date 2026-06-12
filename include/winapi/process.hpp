@@ -83,9 +83,14 @@ public:
     static DWORD read_permissions();
 
     /** Get this process's ID. */
-    ID get_id() const { return m_id; }
+    ID get_id() const {
+        return m_id;
+    }
+
     /** Get this process's handle. */
-    const Handle& get_handle() const { return m_handle; }
+    const Handle& get_handle() const {
+        return m_handle;
+    }
 
     /** Check if this process is running (i.e. not terminated). */
     bool is_running() const;

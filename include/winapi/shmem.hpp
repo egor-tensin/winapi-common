@@ -31,9 +31,13 @@ public:
     static SharedMemory open(std::string_view name);
 
     /** Get pointer to the data. */
-    void* get() const { return m_addr.get(); }
+    void* get() const {
+        return m_addr.get();
+    }
     /** @overload */
-    void* ptr() const { return get(); }
+    void* ptr() const {
+        return get();
+    }
 
 private:
     struct Unmap {
@@ -87,12 +91,21 @@ public:
     }
 
     /** Get pointer to the object. */
-    T* ptr() const { return reinterpret_cast<T*>(m_shmem.ptr()); }
+    T* ptr() const {
+        return reinterpret_cast<T*>(m_shmem.ptr());
+    }
     /** Get reference to the object. */
-    T& get() const { return *ptr(); }
+    T& get() const {
+        return *ptr();
+    }
 
-    T* operator->() const { return ptr(); }
-    T& operator*() const { return get(); }
+    T* operator->() const {
+        return ptr();
+    }
+
+    T& operator*() const {
+        return get();
+    }
 
 private:
     explicit SharedObject(SharedMemory&& shmem) : m_shmem{std::move(shmem)} {}

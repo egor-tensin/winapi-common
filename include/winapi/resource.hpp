@@ -20,7 +20,9 @@ struct Resource {
     Resource(const void* data, std::size_t nb) : data{data}, nb{nb} {}
 
     /** Extract resource data into a Buffer instance. */
-    Buffer copy() const { return {data, nb}; }
+    Buffer copy() const {
+        return {data, nb};
+    }
 
     const void* data = nullptr;
     std::size_t nb = 0;

@@ -18,13 +18,21 @@ public:
     Pipe();
 
     /** Get the read end of the pipe. */
-    Handle& read_end() { return m_read_end; }
+    Handle& read_end() {
+        return m_read_end;
+    }
     /** @overload */
-    const Handle& read_end() const { return m_read_end; }
+    const Handle& read_end() const {
+        return m_read_end;
+    }
     /** Get the write end of the pipe. */
-    Handle& write_end() { return m_write_end; }
+    Handle& write_end() {
+        return m_write_end;
+    }
     /** @overload */
-    const Handle& write_end() const { return m_write_end; }
+    const Handle& write_end() const {
+        return m_write_end;
+    }
 
 private:
     Handle m_read_end;

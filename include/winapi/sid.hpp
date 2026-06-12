@@ -26,14 +26,24 @@ public:
 
     explicit Sid(const Buffer& buffer) : m_buffer{buffer} {}
 
-    explicit operator SID&() { return get_impl(); }
-    explicit operator const SID&() const { return get_impl(); }
+    explicit operator SID&() {
+        return get_impl();
+    }
+
+    explicit operator const SID&() const {
+        return get_impl();
+    }
 
     std::string to_string() const;
 
 private:
-    Impl& get_impl() { return *reinterpret_cast<SID*>(m_buffer.data()); }
-    const Impl& get_impl() const { return *reinterpret_cast<const SID*>(m_buffer.data()); }
+    Impl& get_impl() {
+        return *reinterpret_cast<SID*>(m_buffer.data());
+    }
+
+    const Impl& get_impl() const {
+        return *reinterpret_cast<const SID*>(m_buffer.data());
+    }
 
     Buffer m_buffer;
 };

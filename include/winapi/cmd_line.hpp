@@ -85,16 +85,22 @@ public:
      * Get argv[0] for this command line.
      * @return UTF-8 string.
      */
-    std::string get_argv0() const { return m_argv0; }
+    std::string get_argv0() const {
+        return m_argv0;
+    }
 
     /** Test if this command line has any additional arguments besides argv[0]. */
-    bool has_args() const { return !get_args().empty(); }
+    bool has_args() const {
+        return !get_args().empty();
+    }
 
     /**
      * Get list of arguments for this command line beyond argv[0].
      * @return List of UTF-8 strings.
      */
-    const std::vector<std::string>& get_args() const { return m_args; }
+    const std::vector<std::string>& get_args() const {
+        return m_args;
+    }
 
     /**
      * Get list of arguments for this command line.
@@ -103,9 +109,13 @@ public:
     std::vector<std::string> get_argv() const;
 
 private:
-    static constexpr char token_sep() { return ' '; }
+    static constexpr char token_sep() {
+        return ' ';
+    }
 
-    std::string escape_argv0() const { return escape(get_argv0()); }
+    std::string escape_argv0() const {
+        return escape(get_argv0());
+    }
 
     std::vector<std::string> escape_args() const;
 

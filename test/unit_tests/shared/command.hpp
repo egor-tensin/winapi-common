@@ -62,8 +62,13 @@ public:
     using ReadResult = std::function<void(const Result&)>;
     using ProcessAction = std::function<void(Action, const Args&, Result&)>;
 
-    static Shared create() { return Shared::create(COMMAND_SHMEM_NAME); }
-    static Shared open() { return Shared::open(COMMAND_SHMEM_NAME); }
+    static Shared create() {
+        return Shared::create(COMMAND_SHMEM_NAME);
+    }
+
+    static Shared open() {
+        return Shared::open(COMMAND_SHMEM_NAME);
+    }
 
     void get_result(Action action, const SetArgs& set_args, const ReadResult& read_result) {
         {

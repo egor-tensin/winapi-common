@@ -27,10 +27,17 @@ public:
     Handle() = default;
     explicit Handle(HANDLE);
 
-    HANDLE get() const { return m_impl.get(); }
-    HANDLE ptr() const { return get(); }
+    HANDLE get() const {
+        return m_impl.get();
+    }
 
-    explicit operator HANDLE() const { return ptr(); }
+    HANDLE ptr() const {
+        return get();
+    }
+
+    explicit operator HANDLE() const {
+        return ptr();
+    }
 
     bool is_valid() const;
     static bool is_valid(HANDLE);
@@ -89,7 +96,9 @@ public:
     }
 
     void inherit(bool yes = true) const;
-    void dont_inherit() const { inherit(false); }
+    void dont_inherit() const {
+        inherit(false);
+    }
 
 private:
     struct Close {
