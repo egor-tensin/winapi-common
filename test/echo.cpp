@@ -10,6 +10,7 @@
 #include <fcntl.h>
 // clang-format on
 
+#include <format>
 #include <iostream>
 #include <string>
 
@@ -23,12 +24,12 @@ int wmain(int argc, wchar_t* argv[]) {
 
     if (argc > 0) {
         for (int i = 0; i < argc; ++i) {
-            std::wcout << argv[i] << L'\n';
+            std::wcout << std::format(L"{}\n", argv[i]);
         }
     } else {
         std::wstring line;
         while (std::getline(std::wcin, line)) {
-            std::wcout << line << L'\n';
+            std::wcout << std::format(L"{}\n", line);
         }
     }
     return 0;

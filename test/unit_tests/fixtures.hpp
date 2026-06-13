@@ -14,6 +14,7 @@
 #include <boost/test/unit_test.hpp>
 
 #include <exception>
+#include <format>
 #include <stdexcept>
 #include <string>
 
@@ -25,7 +26,7 @@ public:
         try {
             winapi::File::remove(m_path);
         } catch (const std::exception& e) {
-            BOOST_TEST_MESSAGE("Couldn't remove file " << m_path.get() << ": " << e.what());
+            BOOST_TEST_MESSAGE(std::format("Couldn't remove file {}: {}", m_path.get(), e.what()));
         }
     }
 

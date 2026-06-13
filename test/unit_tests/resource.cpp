@@ -8,20 +8,20 @@
 #include <winapi/process.hpp>
 #include <winapi/utf8.hpp>
 
-#include <boost/format.hpp>
 #include <boost/test/unit_test.hpp>
 
 #include <cstdint>
 
 using namespace winapi;
 
+#include <format>
 #include <ostream>
 #include <vector>
 
 namespace std {
 
 ostream& operator<<(ostream& os, unsigned char c) {
-    return os << boost::format("%|1$02x|") % static_cast<uint32_t>(c);
+    return os << std::format("{:02x}", static_cast<uint32_t>(c));
 }
 
 ostream& operator<<(ostream& os, const vector<unsigned char>& cs) {
