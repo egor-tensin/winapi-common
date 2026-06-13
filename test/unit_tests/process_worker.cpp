@@ -69,10 +69,12 @@ void check_std_handles(Worker& worker, const StdHandles& expected) {
 }
 
 void check_std_handles_same(Worker& worker) {
-    check_std_handles(worker,
-                      {::GetStdHandle(STD_INPUT_HANDLE),
-                       ::GetStdHandle(STD_OUTPUT_HANDLE),
-                       ::GetStdHandle(STD_ERROR_HANDLE)});
+    check_std_handles(
+        worker,
+        {::GetStdHandle(STD_INPUT_HANDLE),
+         ::GetStdHandle(STD_OUTPUT_HANDLE),
+         ::GetStdHandle(STD_ERROR_HANDLE)}
+    );
 }
 
 void check_std_handles_different(Worker& worker) {
@@ -186,7 +188,8 @@ BOOST_FIXTURE_TEST_CASE(create_inherit_override, WithWorkerExe) {
 
     Pipe stdin_pipe, stderr_pipe;
     const StdHandles expected_handles{
-        stdin_pipe.read_end().get(), Handle::std_out().get(), stderr_pipe.write_end().get()};
+        stdin_pipe.read_end().get(), Handle::std_out().get(), stderr_pipe.write_end().get()
+    };
 
     process::IO io;
     io.std_in = process::Stdin{stdin_pipe};
@@ -199,8 +202,9 @@ BOOST_FIXTURE_TEST_CASE(create_inherit_override, WithWorkerExe) {
     check_write(worker);
     check_console_buffer_inherit(worker, {worker::test_data::out()});
     BOOST_TEST(worker.exit() == 0);
-    check_redirected_output(stderr_pipe.read_end().read(),
-                            {worker::test_data::err(), worker::test_data::err()});
+    check_redirected_output(
+        stderr_pipe.read_end().read(), {worker::test_data::err(), worker::test_data::err()}
+    );
 }
 
 BOOST_FIXTURE_TEST_CASE(create_none, WithWorkerExe) {
@@ -223,7 +227,8 @@ BOOST_FIXTURE_TEST_CASE(create_none_override, WithWorkerExe) {
 
     Pipe stdin_pipe, stderr_pipe;
     const StdHandles expected_handles{
-        stdin_pipe.read_end().get(), Handle::std_out().get(), stderr_pipe.write_end().get()};
+        stdin_pipe.read_end().get(), Handle::std_out().get(), stderr_pipe.write_end().get()
+    };
 
     process::IO io;
     io.std_in = process::Stdin{stdin_pipe};
@@ -236,8 +241,9 @@ BOOST_FIXTURE_TEST_CASE(create_none_override, WithWorkerExe) {
     check_write(worker);
     check_console_buffer_none(worker, {worker::test_data::out()});
     BOOST_TEST(worker.exit() == 0);
-    check_redirected_output(stderr_pipe.read_end().read(),
-                            {worker::test_data::err(), worker::test_data::err()});
+    check_redirected_output(
+        stderr_pipe.read_end().read(), {worker::test_data::err(), worker::test_data::err()}
+    );
 }
 
 BOOST_FIXTURE_TEST_CASE(create_new, WithWorkerExe) {
@@ -260,7 +266,8 @@ BOOST_FIXTURE_TEST_CASE(create_new_override, WithWorkerExe) {
 
     Pipe stdin_pipe, stderr_pipe;
     const StdHandles expected_handles{
-        stdin_pipe.read_end().get(), Handle::std_out().get(), stderr_pipe.write_end().get()};
+        stdin_pipe.read_end().get(), Handle::std_out().get(), stderr_pipe.write_end().get()
+    };
 
     process::IO io;
     io.std_in = process::Stdin{stdin_pipe};
@@ -273,8 +280,9 @@ BOOST_FIXTURE_TEST_CASE(create_new_override, WithWorkerExe) {
     check_write(worker);
     check_console_buffer_new(worker, {worker::test_data::out()});
     BOOST_TEST(worker.exit() == 0);
-    check_redirected_output(stderr_pipe.read_end().read(),
-                            {worker::test_data::err(), worker::test_data::err()});
+    check_redirected_output(
+        stderr_pipe.read_end().read(), {worker::test_data::err(), worker::test_data::err()}
+    );
 }
 
 BOOST_AUTO_TEST_SUITE_END()

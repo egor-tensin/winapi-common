@@ -107,7 +107,8 @@ public:
         read_region.Right = buffer_size.X - 1;
 
         if (!::ReadConsoleOutputW(
-                m_handle.get(), buffer.data(), buffer_size, buffer_coord, &read_region)) {
+                m_handle.get(), buffer.data(), buffer_size, buffer_coord, &read_region
+            )) {
             throw winapi::error::windows(GetLastError(), "ReadConsoleOutputW");
         }
 

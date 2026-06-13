@@ -45,7 +45,8 @@ SharedMemory SharedMemory::create(std::string_view name, std::size_t nb) {
     const auto nb_high = static_cast<DWORD>(nb64 >> 32);
 
     const auto mapping_impl = ::CreateFileMappingW(
-        INVALID_HANDLE_VALUE, NULL, PAGE_READWRITE, nb_high, nb_low, widen(name).c_str());
+        INVALID_HANDLE_VALUE, NULL, PAGE_READWRITE, nb_high, nb_low, widen(name).c_str()
+    );
 
     if (mapping_impl == NULL) {
         throw error::windows(GetLastError(), "CreateFileMappingW");

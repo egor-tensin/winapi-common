@@ -96,15 +96,17 @@ int loop() {
     const auto cmd = Command::open();
 
     while (!exit_loop) {
-        cmd->process_action([&exit_loop](Command::Action action,
-                                         const Command::Args& args,
-                                         Command::Result& result) {
-            if (action == Command::EXIT) {
-                exit_loop = true;
-            } else {
-                process_action(action, args, result);
+        cmd->process_action(
+            [&exit_loop](
+                Command::Action action, const Command::Args& args, Command::Result& result
+            ) {
+                if (action == Command::EXIT) {
+                    exit_loop = true;
+                } else {
+                    process_action(action, args, result);
+                }
             }
-        });
+        );
     }
     return 0;
 }

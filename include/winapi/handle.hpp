@@ -88,9 +88,10 @@ public:
      * Write data to this handle.
      * @param src Binary data to write.
      */
-    template <typename CharT,
-              typename Traits = std::char_traits<CharT>,
-              typename Allocator = std::allocator<CharT>>
+    template <
+        typename CharT,
+        typename Traits = std::char_traits<CharT>,
+        typename Allocator = std::allocator<CharT>>
     void write(const std::basic_string<CharT, Traits, Allocator>& src) const {
         write(std::basic_string_view<CharT>{src});
     }

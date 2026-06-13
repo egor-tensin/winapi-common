@@ -37,8 +37,9 @@ public:
 
     HWND get_console_window() {
         HWND ret = NULL;
-        m_cmd->get_result(Command::GET_CONSOLE_WINDOW,
-                          [&ret](const Command::Result& result) { ret = result.console_window; });
+        m_cmd->get_result(Command::GET_CONSOLE_WINDOW, [&ret](const Command::Result& result) {
+            ret = result.console_window;
+        });
         return ret;
     }
 
@@ -52,15 +53,17 @@ public:
 
     StdHandles get_std_handles() {
         StdHandles ret;
-        m_cmd->get_result(Command::GET_STD_HANDLES,
-                          [&ret](const Command::Result& result) { ret = result.std_handles; });
+        m_cmd->get_result(Command::GET_STD_HANDLES, [&ret](const Command::Result& result) {
+            ret = result.std_handles;
+        });
         return ret;
     }
 
     StdHandles test_write() {
         StdHandles ret;
-        m_cmd->get_result(Command::TEST_WRITE,
-                          [&ret](const Command::Result& result) { ret = result.std_handles; });
+        m_cmd->get_result(Command::TEST_WRITE, [&ret](const Command::Result& result) {
+            ret = result.std_handles;
+        });
         return ret;
     }
 

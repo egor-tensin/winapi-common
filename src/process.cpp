@@ -92,16 +92,18 @@ Handle create_process(ProcessParameters& params) {
     {
         auto cmd_line = escape_command_line(params.cmd_line);
 
-        const auto ret = ::CreateProcessW(NULL,
-                                          cmd_line.data(),
-                                          NULL,
-                                          NULL,
-                                          TRUE,
-                                          dwCreationFlags,
-                                          NULL,
-                                          NULL,
-                                          &startup_info,
-                                          &child_info);
+        const auto ret = ::CreateProcessW(
+            NULL,
+            cmd_line.data(),
+            NULL,
+            NULL,
+            TRUE,
+            dwCreationFlags,
+            NULL,
+            NULL,
+            &startup_info,
+            &child_info
+        );
 
         if (!ret) {
             throw error::windows(GetLastError(), "CreateProcessW");
@@ -392,7 +394,8 @@ Resource Process::get_resource(uint32_t id) {
 
     if (data == NULL)
         throw std::runtime_error{
-            std::format("Couldn't get data pointer for resource with ID {}", id)};
+            std::format("Couldn't get data pointer for resource with ID {}", id)
+        };
 
     const auto nb = ::SizeofResource(module, src);
 

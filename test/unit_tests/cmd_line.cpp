@@ -75,10 +75,12 @@ BOOST_AUTO_TEST_CASE(to_string) {
     BOOST_TEST(cmd_line.to_string() == expected);
 }
 
-BOOST_DATA_TEST_CASE(msdn_parse,
-                     boost::unit_test::data::make(msdn_string) ^ msdn_argv,
-                     input,
-                     expected) {
+BOOST_DATA_TEST_CASE(
+    msdn_parse,
+    boost::unit_test::data::make(msdn_string) ^ msdn_argv,
+    input,
+    expected
+) {
     const auto cmd_line = CommandLine::parse(input);
     const auto actual = cmd_line.get_argv();
     BOOST_TEST(actual == expected, "actual: " << actual);

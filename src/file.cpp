@@ -65,13 +65,15 @@ File open_file(std::wstring_view path, const CreateFileParams& params) {
     attributes.nLength = sizeof(attributes);
     attributes.bInheritHandle = TRUE;
 
-    const auto handle = ::CreateFileW(path.data(),
-                                      params.dwDesiredAccess,
-                                      params.dwShareMode,
-                                      &attributes,
-                                      params.dwCreationDisposition,
-                                      FILE_ATTRIBUTE_NORMAL,
-                                      NULL);
+    const auto handle = ::CreateFileW(
+        path.data(),
+        params.dwDesiredAccess,
+        params.dwShareMode,
+        &attributes,
+        params.dwCreationDisposition,
+        FILE_ATTRIBUTE_NORMAL,
+        NULL
+    );
 
     if (handle == INVALID_HANDLE_VALUE) {
         throw error::windows(GetLastError(), "CreateFileW");

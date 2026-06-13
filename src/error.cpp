@@ -39,7 +39,8 @@ std::string format_message(int32_t code) {
         MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT),
         reinterpret_cast<wchar_t*>(&buf),
         0,
-        NULL);
+        NULL
+    );
 
     if (0 == len) {
         ::LocalFree(buf);
@@ -60,7 +61,8 @@ std::string CategoryWindows::message(int32_t code) const {
 std::system_error windows(DWORD code, const char* function) {
     static_assert(sizeof(DWORD) == sizeof(int32_t), "Aren't DWORDs the same size as ints?");
     return std::system_error{
-        static_cast<int32_t>(code), category_windows(), build_what(code, function)};
+        static_cast<int32_t>(code), category_windows(), build_what(code, function)
+    };
 }
 
 } // namespace winapi::error

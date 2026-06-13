@@ -21,7 +21,8 @@ namespace {
 
 std::runtime_error write_file_incomplete(std::size_t expected, std::size_t actual) {
     return std::runtime_error{
-        std::format("WriteFile could only write {} bytes instead of {}", actual, expected)};
+        std::format("WriteFile could only write {} bytes instead of {}", actual, expected)
+    };
 }
 
 bool is_std_handle(HANDLE handle) {
