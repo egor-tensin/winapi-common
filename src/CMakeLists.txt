@@ -5,7 +5,10 @@ file(GLOB winapi_common_src CONFIGURE_DEPENDS "*.cpp")
 add_library(winapi_common ${winapi_common_include} ${winapi_common_src})
 target_include_directories(winapi_common PUBLIC ../include)
 target_link_libraries(winapi_common PRIVATE winapi_utf8)
-target_link_libraries(winapi_common PUBLIC Boost::disable_autolinking Boost::boost)
+target_link_libraries(winapi_common PUBLIC
+    Boost::disable_autolinking
+    Boost::boost
+)
 install(TARGETS winapi_common ARCHIVE DESTINATION lib)
 install(DIRECTORY ../include/winapi DESTINATION include)
 

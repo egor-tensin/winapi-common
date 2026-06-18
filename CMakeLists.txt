@@ -37,5 +37,6 @@ if(DOXYGEN_FOUND)
     doxygen_add_docs(winapi_common_docs
         README.md
         ${winapi_common_include}
-        ${winapi_common_src})
+        ${winapi_common_src}
+    )
 endif()
