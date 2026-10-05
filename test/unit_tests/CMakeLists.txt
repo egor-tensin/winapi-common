@@ -44,20 +44,20 @@ add_test(NAME unit_tests
     "--worker_exe=$<TARGET_FILE:worker>"
 )
 
-add_test(NAME unit_tests_report
-    WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/../../cmake"
+set(test_run
+    WORKING_DIRECTORY "${CMAKE_SOURCE_DIR}/cmake"
     COMMAND Python3::Interpreter
     -m project.ctest_driver
+)
+
+add_test(NAME unit_tests_report ${test_run}
     grep
     --pass-regex [=[^\*\*\* No errors detected$]=]
     --
     "$<TARGET_FILE_DIR:unit_tests>/unit_tests_report.txt"
 )
 
-add_test(NAME console_tests
-    WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/../../cmake"
-    COMMAND Python3::Interpreter
-    -m project.ctest_driver
+add_test(NAME console_tests ${test_run}
     run
     --new-window
     --
@@ -72,10 +72,7 @@ add_test(NAME console_tests
     "--worker_exe=$<TARGET_FILE:worker>"
 )
 
-add_test(NAME console_tests_report
-    WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/../../cmake"
-    COMMAND Python3::Interpreter
-    -m project.ctest_driver
+add_test(NAME console_tests_report ${test_run}
     grep
     --pass-regex [=[^\*\*\* No errors detected$]=]
     --
