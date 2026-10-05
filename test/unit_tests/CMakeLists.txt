@@ -32,7 +32,8 @@ endif()
 
 find_package(Python3 REQUIRED COMPONENTS Interpreter)
 
-add_test(NAME unit_tests COMMAND unit_tests
+add_test(NAME unit_tests
+    COMMAND unit_tests
     --log_level=all
     --no_color_output
     "--log_sink=$<TARGET_FILE_DIR:unit_tests>/unit_tests.log"
@@ -43,16 +44,20 @@ add_test(NAME unit_tests COMMAND unit_tests
     "--worker_exe=$<TARGET_FILE:worker>"
 )
 
-add_test(NAME unit_tests_report COMMAND Python3::Interpreter
-    "${CMAKE_CURRENT_SOURCE_DIR}/../../cmake/tools/ctest-driver.py"
+add_test(NAME unit_tests_report
+    WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/../../cmake"
+    COMMAND Python3::Interpreter
+    -m project.ctest_driver
     grep
     --pass-regex [=[^\*\*\* No errors detected$]=]
     --
     "$<TARGET_FILE_DIR:unit_tests>/unit_tests_report.txt"
 )
 
-add_test(NAME console_tests COMMAND Python3::Interpreter
-    "${CMAKE_CURRENT_SOURCE_DIR}/../../cmake/tools/ctest-driver.py"
+add_test(NAME console_tests
+    WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/../../cmake"
+    COMMAND Python3::Interpreter
+    -m project.ctest_driver
     run
     --new-window
     --
@@ -67,8 +72,10 @@ add_test(NAME console_tests COMMAND Python3::Interpreter
     "--worker_exe=$<TARGET_FILE:worker>"
 )
 
-add_test(NAME console_tests_report COMMAND Python3::Interpreter
-    "${CMAKE_CURRENT_SOURCE_DIR}/../../cmake/tools/ctest-driver.py"
+add_test(NAME console_tests_report
+    WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/../../cmake"
+    COMMAND Python3::Interpreter
+    -m project.ctest_driver
     grep
     --pass-regex [=[^\*\*\* No errors detected$]=]
     --
